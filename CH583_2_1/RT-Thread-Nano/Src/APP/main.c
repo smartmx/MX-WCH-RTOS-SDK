@@ -115,6 +115,11 @@ void tmos_task(void *pvParameters)
     rt_base_t level;
 
     level = rt_hw_interrupt_disable();
+#ifdef CH58xBLE_ROM
+    /* 固定库需要手动修改中断向量表 */
+    *(uint32_t *)(0x20000000 + 40 * 4) = (uint32_t)BB_IRQLibHandler;
+    *(uint32_t *)(0x20000000 + 41 * 4) = (uint32_t)LLE_IRQLibHandler;
+#endif
     CH58X_BLEInit();
     HAL_Init();
     GAPRole_PeripheralInit();
