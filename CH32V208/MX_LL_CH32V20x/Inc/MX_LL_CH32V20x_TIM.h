@@ -12,8 +12,6 @@
 #ifndef _MX_LL_CH32V20X_TIM_H_
 #define _MX_LL_CH32V20X_TIM_H_
 
-/* 个人常用的一些宏定义改写汇总 */
-
 #define _TIM_CHxCVR(X)                  CH##X##CVR
 #define _TIM_IT_CCx(X)                  TIM_IT_CC##X
 #define _TIMx_IRQn(X)                   TIM##X##_IRQn
