@@ -159,10 +159,16 @@ __HIGH_CODE
 void tmos_task(void *pvParameters)
 {
     portDISABLE_INTERRUPTS();
+    
 #ifdef CH58xBLE_ROM
     /* 固定库需要手动修改中断向量表 */
-    *(uint32_t *)(0x20000000 + 40 * 4) = (uint32_t)BB_IRQLibHandler;
-    *(uint32_t *)(0x20000000 + 41 * 4) = (uint32_t)LLE_IRQLibHandler;
+    do
+    {
+        extern uint32_t _BB_IRQHandler_base[1];
+        extern uint32_t _LLE_IRQHandler_base[1];
+        _BB_IRQHandler_base[0] = (uint32_t)BB_IRQLibHandler;
+        _LLE_IRQHandler_base[0] = (uint32_t)LLE_IRQLibHandler;
+    } while (0);
 #endif
     CH58X_BLEInit();
     HAL_Init();
@@ -172,7 +178,9 @@ void tmos_task(void *pvParameters)
     PFIC_DisableFastINT2();
     PFIC_DisableFastINT3();     /* 蓝牙使用了快速中断，所以需要将其失能，lib库中真实中断处理函数为BB_IRQLibHandler LLE_IRQLibHandler */
     PRINT("%08x,%08x\n", PFIC->FIADDRR[2], PFIC->FIADDRR[3]);
+    
     portENABLE_INTERRUPTS();
+    
     App_Printf("tmos ble start\n");
     while (1)
     {

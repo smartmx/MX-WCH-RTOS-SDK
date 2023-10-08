@@ -16,6 +16,8 @@ _start:
 	j	handle_reset
 
     .section    .vector,"ax",@progbits
+    .global	_BB_IRQHandler_base
+    .global	_LLE_IRQHandler_base
     .align  1
 _vector_base:
     .option norvc;
@@ -71,7 +73,9 @@ _real_user_vector_base:
     .word   GPIOA_IRQHandler           				/* GPIOA */
     .word   GPIOB_IRQHandler           				/* GPIOB */
     .word   SPI0_IRQHandler            				/* SPI0 */
+_BB_IRQHandler_base:
     .word   BB_IRQLibHandler      					/* BLEB BB_IRQHandler */
+_LLE_IRQHandler_base:
     .word   LLE_IRQLibHandler       				/* BLEL LLE_IRQHandler */
     .word   USB_IRQHandler             				/* USB */
     .word   USB2_IRQHandler			   				/* USB2 */
