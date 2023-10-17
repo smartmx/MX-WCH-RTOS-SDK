@@ -177,26 +177,66 @@ extern volatile uint32_t IRQ_STA;
  * within the valid period. The safe mode will be automatically 
  * terminated after the above validity period is exceeded.
  */
- __attribute__((always_inline)) static inline void sys_safe_access_enable(void)
+// __attribute__((always_inline)) static inline void sys_safe_access_enable(void)
+//{
+//   if(read_csr(0x800)&0x08)
+//   {
+//       IRQ_STA = read_csr(0x800);
+//       write_csr(0x800, (IRQ_STA&(~0x08)));
+//   }
+//   SAFEOPERATE;
+//   R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
+//   R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+//   SAFEOPERATE;
+//}
+//
+//__attribute__((always_inline)) static inline void sys_safe_access_disable(void)
+//{
+//   R8_SAFE_ACCESS_SIG = 0;
+//   write_csr(0x800, read_csr(0x800)|(IRQ_STA&0x08));
+//   IRQ_STA = 0;
+//   SAFEOPERATE;
+//}
+/*********************************************************************
+ * @fn      __risc_v_enable_irq
+ *
+ * @brief   recover Global Interrupt
+ *
+ * @return  none
+ */
+RV_STATIC_INLINE uint32_t __risc_v_enable_irq(uint32_t mpie_mie)
 {
-   if(read_csr(0x800)&0x08)
-   {
-       IRQ_STA = read_csr(0x800);
-       write_csr(0x800, (IRQ_STA&(~0x08)));
-   }
-   SAFEOPERATE;
-   R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-   R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-   SAFEOPERATE;
+  uint32_t result;
+
+  __asm volatile ("csrrs %0, 0x800, %1" : \
+          "=r"(result): "r"(mpie_mie) : "memory");
+  return result;
 }
 
-__attribute__((always_inline)) static inline void sys_safe_access_disable(void)
+/*********************************************************************
+ * @fn      __risc_v_disable_irq
+ *
+ * @brief   Disable Global Interrupt
+ *
+ * @return  none
+ */
+RV_STATIC_INLINE uint32_t __risc_v_disable_irq()
 {
-   R8_SAFE_ACCESS_SIG = 0;
-   write_csr(0x800, read_csr(0x800)|(IRQ_STA&0x08));
-   IRQ_STA = 0;
-   SAFEOPERATE;
+  uint32_t result;
+
+  __asm volatile ("csrrc %0, 0x800, %1" : \
+          "=r"(result): "r"(0x88) : "memory");
+  return result & 0x88;
 }
+
+/*
+ *  @Note:
+ *  if sys_safe_access_enable() is called,
+ *  you must call sys_safe_access_disable() before call sys_safe_access_enable() again.
+ */
+#define sys_safe_access_enable()        do{volatile uint32_t mpie_mie;mpie_mie=__risc_v_disable_irq();SAFEOPERATE;R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;SAFEOPERATE;
+
+#define sys_safe_access_disable()       R8_SAFE_ACCESS_SIG = 0;__risc_v_enable_irq(mpie_mie);SAFEOPERATE;}while(0)
 
 #ifdef __cplusplus
 }
