@@ -327,14 +327,14 @@ __attribute__((section(".highcode.os_enter_ble_protect")))
 void os_enter_ble_protect(void)
 {
     /* 关RTOS调度器 */
-//    NVIC_DisableIRQ(Software_IRQn);
+    NVIC_DisableIRQ(Software_IRQn);
 }
 
 __attribute__((section(".highcode.os_exit_ble_protect")))
 void os_exit_ble_protect(void)
 {
     /* 恢复RTOS调度器 */
-//    NVIC_EnableIRQ(Software_IRQn);
+    NVIC_EnableIRQ(Software_IRQn);
 }
 
 /******************************** endfile @ mcu ******************************/
