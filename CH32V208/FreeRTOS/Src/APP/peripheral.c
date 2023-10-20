@@ -52,7 +52,7 @@
 #define DEFAULT_DESIRED_MIN_CONN_INTERVAL    6
 
 // Maximum connection interval (units of 1.25ms, 100=125ms)
-#define DEFAULT_DESIRED_MAX_CONN_INTERVAL    12
+#define DEFAULT_DESIRED_MAX_CONN_INTERVAL    100
 
 // Slave latency to use parameter update
 #define DEFAULT_DESIRED_SLAVE_LATENCY        0
@@ -87,24 +87,25 @@ static uint8_t Peripheral_TaskID = INVALID_TASK_ID; // Task ID for internal task
 // GAP - SCAN RSP data (max size = 31 bytes)
 static uint8_t scanRspData[] = {
     // complete name
-    0x0f, // length of this data
+    0x12, // length of this data
     GAP_ADTYPE_LOCAL_NAME_COMPLETE,
-
-    'N',
-    'F',
-    'C',
-    ' ',
     'S',
+    'i',
     'm',
-    'a',
-    'r',
-    't',
+    'p',
+    'l',
+    'e',
     ' ',
-    'L',
-    'o',
-    'c',
-    'k',
-
+    'P',
+    'e',
+    'r',
+    'i',
+    'p',
+    'h',
+    'e',
+    'r',
+    'a',
+    'l',
     // connection interval range
     0x05, // length of this data
     GAP_ADTYPE_SLAVE_CONN_INTERVAL_RANGE,
@@ -138,7 +139,7 @@ static uint8_t advertData[] = {
 };
 
 // GAP GATT Attributes
-static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "NFC Smart Lock";
+static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "Simple Peripheral";
 
 // Connection item list
 static peripheralConnItem_t peripheralConnList;
@@ -177,13 +178,17 @@ static gapRolesBroadcasterCBs_t Broadcaster_BroadcasterCBs = {
 // GAP Bond Manager Callbacks
 static gapBondCBs_t Peripheral_BondMgrCBs = {
     NULL, // Passcode callback (not used by application)
-    NULL  // Pairing / Bonding state Callback (not used by application)
+    NULL, // Pairing / Bonding state Callback (not used by application)
+    NULL  // oob callback
 };
 
 // Simple GATT Profile Callbacks
 static simpleProfileCBs_t Peripheral_SimpleProfileCBs = {
     simpleProfileChangeCB // Characteristic value change callback
 };
+/*********************************************************************
+ * PUBLIC FUNCTIONS
+ */
 
 /*********************************************************************
  * @fn      Peripheral_Init
@@ -205,7 +210,7 @@ void Peripheral_Init()
 
     // Setup the GAP Peripheral Role Profile
     {
-        uint8_t  initial_advertising_enable = TRUE;  ////FALSE;
+        uint8_t  initial_advertising_enable = TRUE;
         uint16_t desired_min_interval = DEFAULT_DESIRED_MIN_CONN_INTERVAL;
         uint16_t desired_max_interval = DEFAULT_DESIRED_MAX_CONN_INTERVAL;
 
@@ -215,15 +220,10 @@ void Peripheral_Init()
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
         GAPRole_SetParameter(GAPROLE_MIN_CONN_INTERVAL, sizeof(uint16_t), &desired_min_interval);
         GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t), &desired_max_interval);
-
-
-//        uint8_t adv_type = GAP_ADTYPE_ADV_NONCONN_IND;
-//
-//        GAPRole_SetParameter(GAPROLE_ADV_EVENT_TYPE, sizeof(uint8_t), &adv_type);
     }
 
     // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), attDeviceName);
 
     {
         uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
@@ -282,8 +282,6 @@ void Peripheral_Init()
 
     // Setup a delayed profile startup
     tmos_set_event(Peripheral_TaskID, SBP_START_DEVICE_EVT);
-//    tmos_start_task(Peripheral_TaskID, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD);
-
 }
 
 /*********************************************************************
@@ -349,7 +347,7 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
             tmos_start_task(Peripheral_TaskID, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD);
         }
         // Perform periodic application task
-//        performPeriodicTask();
+        performPeriodicTask();
         return (events ^ SBP_PERIODIC_EVT);
     }
 
@@ -369,8 +367,8 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & SBP_PHY_UPDATE_EVT)
     {
         // start phy update
-        PRINT("PHY Update %x...\n", GAPRole_UpdatePHY(peripheralConnList.connHandle, 0, GAP_PHY_BIT_LE_2M,
-                                                      GAP_PHY_BIT_LE_2M, 0));
+        PRINT("PHY Update %x...\n", GAPRole_UpdatePHY(peripheralConnList.connHandle, 0, 
+                    GAP_PHY_BIT_LE_2M, GAP_PHY_BIT_LE_2M, GAP_PHY_OPTIONS_NOPRE));
 
         return (events ^ SBP_PHY_UPDATE_EVT);
     }
@@ -397,7 +395,6 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
  */
 static void Peripheral_ProcessGAPMsg(gapRoleEvent_t *pEvent)
 {
-//    gapEndDiscoverableRspEvent_t a;
     switch(pEvent->gap.opcode)
     {
         case GAP_SCAN_REQUEST_EVENT:
@@ -415,7 +412,6 @@ static void Peripheral_ProcessGAPMsg(gapRoleEvent_t *pEvent)
         }
 
         default:
-            PRINT("%02x\n", pEvent->gap.opcode);
             break;
     }
 }
