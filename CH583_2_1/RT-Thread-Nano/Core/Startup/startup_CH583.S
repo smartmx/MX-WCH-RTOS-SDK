@@ -1,14 +1,13 @@
-/********************************** (C) COPYRIGHT *******************************
- * File Name          : startup_CH58x.S
- * Author             : WCH
- * Version            : V1.0.1
- * Date               : 2023/08/16
- * Description        : CH583 RT-Thread NanoÆô¶¯ÎÄ¼þ
- *********************************************************************************
- * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * Attention: This software (modified or not) and binary are used for
- * microcontroller manufactured by Nanjing Qinheng Microelectronics.
- *******************************************************************************/
+/*
+ * Copyright (c) 2023, smartmx <smartmx@qq.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Change Logs:
+ * Date           Author       Notes
+ * 2023-08-15     smartmx      the first version
+ *
+ */
 
 	.section	.init,"ax",@progbits
 	.global	_start

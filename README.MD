@@ -12,7 +12,7 @@
 | :---- | :---- |
 | [`FreeRTOS`](CH583_2_1/FreeRTOS/) | 已完成 |
 | [`RT-Thread`](CH583_2_1/RT-Thread-Nano/) | 已完成 |
-| `liteos_m` | 进行中 |
+| [`liteos_m`](CH583_2_1/LiteOS_m/) | 已完成 |
 
 ### CH592/1
 
