@@ -2,8 +2,8 @@
  * File Name          : portASM.S
  * Author             : WCH
  * Version            : V1.0
- * Date               : 2022/05/10
- * Description        : WCH Qingke V4A FreeRTOSÒÆÖ²»ã±à½Ó¿Ú
+ * Date               : 2023/10/25
+ * Description        : WCH Qingke V4C FreeRTOSÒÆÖ²»ã±à½Ó¿Ú
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
@@ -13,18 +13,57 @@
 .global xPortStartFirstTask
 .global pxPortInitialiseStack
 .global SW_Handler
-.global SW_Handler_Switch
 .extern pxCurrentTCB
 .extern vTaskSwitchContext
 .extern xISRStackTop
 
-.section	.highcode.SW_Handler_Switch,"ax",@progbits
+.section	.highcode.SW_Handler,"ax",@progbits
 .align 2
 .func
-SW_Handler_Switch:
+SW_Handler:
 
-	li t0, 0x1880					/* set MPIE to 1, make interrupt enabled after this function. */
-	csrw mstatus, t0
+	addi sp, sp, -portCONTEXT_SIZE
+	sw x1, 1 * 4( sp )
+	sw x5, 2 * 4( sp )
+	sw x6, 3 * 4( sp )
+	sw x7, 4 * 4( sp )
+	sw x8, 5 * 4( sp )
+	sw x9, 6 * 4( sp )
+	sw x10, 7 * 4( sp )
+	sw x11, 8 * 4( sp )
+	sw x12, 9 * 4( sp )
+	sw x13, 10 * 4( sp )
+	sw x14, 11 * 4( sp )
+	sw x15, 12 * 4( sp )
+	sw x16, 13 * 4( sp )
+	sw x17, 14 * 4( sp )
+	sw x18, 15 * 4( sp )
+	sw x19, 16 * 4( sp )
+	sw x20, 17 * 4( sp )
+	sw x21, 18 * 4( sp )
+	sw x22, 19 * 4( sp )
+	sw x23, 20 * 4( sp )
+	sw x24, 21 * 4( sp )
+	sw x25, 22 * 4( sp )
+	sw x26, 23 * 4( sp )
+	sw x27, 24 * 4( sp )
+	sw x28, 25 * 4( sp )
+	sw x29, 26 * 4( sp )
+	sw x30, 27 * 4( sp )
+	sw x31, 28 * 4( sp )
+
+	sw x4, 29 * 4( sp )				/* tp - not sure it is useful */
+
+	addi a1, x0, 0x20           	/* Disable HPE */
+	csrs 0x804, a1
+
+	lw  t0, pxCurrentTCB			/* Load pxCurrentTCB. */
+	sw  sp, 0( t0 )					/* Write sp to first TCB member. */
+
+	csrr a1, mepc
+	sw a1, 0( sp )					/* Save updated exception return address. */
+
+	jal vTaskSwitchContext
 
 	lw  t1, pxCurrentTCB			/* Load pxCurrentTCB. */
 	lw  sp, 0( t1 )				 	/* Read sp from first TCB member. */
@@ -64,61 +103,6 @@ SW_Handler_Switch:
 	lw  x4, 29 * 4( sp )			/* tp - not sure it is useful */
 
 	addi sp, sp, portCONTEXT_SIZE
-	mret							/* must use mret, to make mie enabled and pc changed. */
-	.endfunc
-/*-----------------------------------------------------------*/
-
-.section	.highcode.SW_Handler,"ax",@progbits
-.align 2
-.func
-SW_Handler:
-
-	addi sp, sp, -portCONTEXT_SIZE
-	sw x1, 1 * 4( sp )
-	sw x5, 2 * 4( sp )
-	sw x6, 3 * 4( sp )
-	sw x7, 4 * 4( sp )
-	sw x8, 5 * 4( sp )
-	sw x9, 6 * 4( sp )
-	sw x10, 7 * 4( sp )
-	sw x11, 8 * 4( sp )
-	sw x12, 9 * 4( sp )
-	sw x13, 10 * 4( sp )
-	sw x14, 11 * 4( sp )
-	sw x15, 12 * 4( sp )
-	sw x16, 13 * 4( sp )
-	sw x17, 14 * 4( sp )
-	sw x18, 15 * 4( sp )
-	sw x19, 16 * 4( sp )
-	sw x20, 17 * 4( sp )
-	sw x21, 18 * 4( sp )
-	sw x22, 19 * 4( sp )
-	sw x23, 20 * 4( sp )
-	sw x24, 21 * 4( sp )
-	sw x25, 22 * 4( sp )
-	sw x26, 23 * 4( sp )
-	sw x27, 24 * 4( sp )
-	sw x28, 25 * 4( sp )
-	sw x29, 26 * 4( sp )
-	sw x30, 27 * 4( sp )
-	sw x31, 28 * 4( sp )
-
-	sw x4, 29 * 4( sp )				/* tp - not sure it is useful */
-
-	lw  t0, pxCurrentTCB			/* Load pxCurrentTCB. */
-	sw  sp, 0( t0 )					/* Write sp to first TCB member. */
-
-	csrr a1, mepc
-	sw a1, 0( sp )					/* Save updated exception return address. */
-
-	jal vTaskSwitchContext
-
-	li t0, 0x1800					/* set MPIE to 0, make it safe when switch tasks. */
-	csrw mstatus, t0
-
-	/* Load mret with the address of the next instruction in the task to run next. */
-	la t0, SW_Handler_Switch
-	csrw mepc, t0
 
 	mret
 	.endfunc

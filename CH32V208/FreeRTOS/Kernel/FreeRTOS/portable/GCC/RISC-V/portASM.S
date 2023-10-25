@@ -16,7 +16,6 @@
 .extern pxCurrentTCB
 .extern vTaskSwitchContext
 .extern xISRStackTop
-.extern user_interrupt_handler
 
 .section	.highcode.SW_Handler,"ax",@progbits
 .align 2

@@ -20,7 +20,7 @@
 	
 	9.本工程的Startup.S文件和Ld文件都是单独的，用户中断向量表可见Startup.S，用户中断总入口unified_interrupt_entry和中断向量表_real_user_vector_base就在该文件中。
 	
-	10.CH32V208的蓝牙会采用类似于RTOS操作，在中断中切换到另一个运行环境等待蓝牙事件完成，所以在ble_task_scheduler.S中，添加了调用HAL/MCU.c中的 os_enter_ble_protect 和 os_exit_ble_protect，用来停止FreeRTOS操作系统，防止在蓝牙内部任务中被切换。
+	10.CH32V208的蓝牙会采用类似于RTOS操作，在中断中切换到另一个运行环境等待蓝牙事件完成，所以在ble_task_scheduler.S中，添加了调用HAL/MCU.c中的 os_enter_ble_protect 和 os_exit_ble_protect，用来停止rt-thread操作系统，防止在蓝牙内部任务中被切换。
 	
 	11.统一入口的中断函数无需调用rt_interrupt_enter和rt_interrupt_leave，在用户统一入口unified_interrupt_entry中已经调用。
 		
