@@ -18,7 +18,7 @@
 
 | RTOS | 状态 |
 | :---- | :---- |
-| `FreeRTOS` | 进行中 |
+| [`FreeRTOS`](CH592/FreeRTOS/) | 已完成 |
 | `RT-Thread` | 进行中 |
 | `liteos_m` | 进行中 |
 
