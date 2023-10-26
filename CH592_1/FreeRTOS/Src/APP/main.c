@@ -188,6 +188,7 @@ void tmos_task(void *pvParameters)
     SetVTFIRQ((uint32_t)0, BLEB_IRQn, 2, DISABLE);
     SetVTFIRQ((uint32_t)0, BLEL_IRQn, 3, DISABLE);
     PRINT("%08x,%08x\n", PFIC->VTFADDR[2], PFIC->VTFADDR[3]);
+    PFIC_SetPriority(BLEL_IRQn, 0xe0);   /* 必须保证不可抢断其他任务 */
     portENABLE_INTERRUPTS();
     App_Printf("tmos ble start\n");
     Main_Circulation();
