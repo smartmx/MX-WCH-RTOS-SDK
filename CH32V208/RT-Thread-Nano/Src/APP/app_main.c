@@ -167,7 +167,7 @@ void tmos_task(void *pvParameters)
         _BB_IRQHandler_base[0] = (uint32_t)BB_IRQLibHandler;
     } while (0);
 #endif
-
+    NVIC_SetPriority(LLE_IRQn, 0xe0);   /* 必须保证不可抢断其他任务 */
     rt_hw_interrupt_enable(level);
     rt_kprintf("tmos ble start\n");
     Main_Circulation();
