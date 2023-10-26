@@ -329,7 +329,6 @@ void os_enter_ble_protect(void)
 {
     /* 关RTOS调度器 */
     NVIC_DisableIRQ(Software_IRQn);
-    rt_enter_critical();
 }
 
 __attribute__((section(".highcode.os_exit_ble_protect")))
@@ -337,7 +336,6 @@ void os_exit_ble_protect(void)
 {
     /* 恢复RTOS调度器 */
     NVIC_EnableIRQ(Software_IRQn);
-    rt_exit_critical();
 }
 
 /******************************** endfile @ mcu ******************************/
