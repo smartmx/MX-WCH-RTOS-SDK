@@ -30,6 +30,14 @@
 | [`RT-Thread`](CH32V208/RT-Thread-Nano/) | 已完成 |
 | [`liteos_m`](CH32V208/LiteOS_m/) | 已完成 |
 
+### CH32V203
+
+| RTOS | 状态 |
+| :---- | :---- |
+| `FreeRTOS` | 进行中 |
+| `RT-Thread` | 进行中 |
+| `liteos_m` | 进行中 |
+
 ## WCH芯片内核版本
 
 WCH Qingke内核是基于RISC-V的内核。
