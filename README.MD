@@ -19,8 +19,8 @@
 | RTOS | 状态 |
 | :---- | :---- |
 | [`FreeRTOS`](CH592/FreeRTOS/) | 已完成 |
-| `RT-Thread` | 进行中 |
-| `liteos_m` | 进行中 |
+| [`RT-Thread`](CH592/RT-Thread-Nano/) | 已完成 |
+| [`liteos_m`](CH592/LiteOS_m/) | 已完成 |
 
 ### CH32V208
 
