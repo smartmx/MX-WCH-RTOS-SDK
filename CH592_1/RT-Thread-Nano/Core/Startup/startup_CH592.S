@@ -208,7 +208,7 @@ handle_reset:
 
 	/* 使用机器模式，在rt-thread中打开中断 */
     li t0, 0x1800
-    csrs mstatus, t0
+    csrw mstatus, t0
 
 	/* 配置系统异常及中断向量表，用户真正使用的向量表在统一入口 unified_interrupt_entry 中处理 */
 	la t0, _vector_base
