@@ -2,6 +2,14 @@
 
 本仓库存放个人关于WCH系列芯片的一些开源项目的移植和库文件的优化修改。
 
+## 移植特点
+
+1. 中断向量表修改，默认中断向量表不同于RISC-V官方，在一部分异常发生时都是进入HardFault中断。所以依旧使用Qingke的中断向量表模式来进行中断管理。但是将用户编写的外部中断都统一使用汇编函数入口进行管理，所以不在需要使用__attribute__((interrupt("WCH-Interrupt-fast")))或者__attribute__((interrupt()))修饰。在汇编总入口中，第一级中断进入时，会打开中断嵌套，切换为中断栈。
+
+2. 使能中断嵌套会导致每个中断执行会多约10个指令周期，中断嵌套使能通过工程右键 -> properties -> c/c++ Build -> settings -> tool settings -> GNU RISC-V Cross Assembler -> Preprocessor 右边输入框Defined symbols中的 ENABLE_INTERRUPT_NEST=0 修改为 ENABLE_INTERRUPT_NEST=1 即可。
+
+3. 使用硬件压栈（不可关闭），保证运行速度。
+
 ## 移植目录
 
 目前已经移植的目录
