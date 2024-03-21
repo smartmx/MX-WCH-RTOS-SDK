@@ -85,8 +85,8 @@ void CH58X_BLEInit(void)
         PRINT("head file error...\n");
         while(1);
     }
-//    SysTick_Config(SysTick_LOAD_RELOAD_Msk);
-//    PFIC_DisableIRQ(SysTick_IRQn);
+    
+//    _SysTick_Config(SysTick_LOAD_RELOAD_Msk);
 
     tmos_memset(&cfg, 0, sizeof(bleConfig_t));
     cfg.MEMAddr = (uint32_t)MEM_BUF;

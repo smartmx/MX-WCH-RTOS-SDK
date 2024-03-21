@@ -88,8 +88,7 @@ void CH59x_BLEInit(void)
     }
 
     /*
-    SysTick_Config(SysTick_LOAD_RELOAD_Msk);
-    PFIC_DisableIRQ(SysTick_IRQn);
+    _SysTick_Config(SysTick_LOAD_RELOAD_Msk);
     */  /* ºÍRTOSÖÐsystick³åÍ» */
 
     g_LLE_IRQLibHandlerLocation = (uint32_t)LLE_IRQLibHandler;
