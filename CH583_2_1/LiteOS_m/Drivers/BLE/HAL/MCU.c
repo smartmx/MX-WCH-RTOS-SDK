@@ -86,7 +86,7 @@ void CH58X_BLEInit(void)
         while(1);
     }
     
-//    _SysTick_Config(SysTick_LOAD_RELOAD_Msk);
+//    __SysTick_Config(SysTick_LOAD_RELOAD_Msk);
 
     tmos_memset(&cfg, 0, sizeof(bleConfig_t));
     cfg.MEMAddr = (uint32_t)MEM_BUF;

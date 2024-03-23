@@ -87,7 +87,7 @@ void CH58X_BLEInit(void)
     }
     
     /*
-    _SysTick_Config(SysTick_LOAD_RELOAD_Msk);
+    __SysTick_Config(SysTick_LOAD_RELOAD_Msk);
     */  /* ºÍRTOSÖÐsystick³åÍ» */
 
     tmos_memset(&cfg, 0, sizeof(bleConfig_t));

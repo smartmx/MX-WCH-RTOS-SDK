@@ -641,7 +641,7 @@ RV_STATIC_INLINE uint32_t SysTick_Config(uint64_t ticks)
     return (0);                       /* Function successful */
 }
 
-RV_STATIC_INLINE uint32_t _SysTick_Config(uint64_t ticks)
+RV_STATIC_INLINE uint32_t __SysTick_Config(uint64_t ticks)
 {
     if((ticks - 1) > SysTick_LOAD_RELOAD_Msk)
         return (1); /* Reload value impossible */
