@@ -1,3 +1,8 @@
 eclipse.preferences.version=1
-encoding//Drivers/Debug/printf/printf_config.h=UTF-8
+encoding//Drivers/MXSDK/peripheral/inc/mx_ch59x_debug.h=UTF-8
+encoding//Drivers/MXSDK/peripheral/inc/mx_ch59x_gpio.h=UTF-8
+encoding//Drivers/MXSDK/peripheral/inc/mx_riscv_atomic.h=UTF-8
+encoding//Drivers/MXSDK/peripheral/src/mx_ch59x_debug.c=UTF-8
+encoding//Drivers/MXSDK/printf/printf_config.h=UTF-8
+encoding//Drivers/MXSDK/wrap/wrap.c=UTF-8
 encoding/readme.txt=UTF-8

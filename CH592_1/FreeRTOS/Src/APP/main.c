@@ -13,6 +13,7 @@
 /******************************************************************************/
 /* 头文件包含 */
 #include "CH59x_common.h"
+#include "mx_sdk.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "config.h"
@@ -211,11 +212,11 @@ int main(void)
     GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
     GPIOB_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 #endif
+
 #ifdef DEBUG
-    GPIOA_SetBits(bTXD1);
-    GPIOA_ModeCfg(bTXD1, GPIO_ModeOut_PP_5mA);
-    UART1_DefInit();
+    mx_debug_uart_init(115200);
 #endif
+
     PRINT("start.\n");
     printMutex = xSemaphoreCreateMutex();
     if(printMutex == NULL)

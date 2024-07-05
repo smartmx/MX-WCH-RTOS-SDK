@@ -14,7 +14,7 @@
 #include <rtthread.h>
 #include "board.h"
 
-rt_uint32_t __SysTick_Config(rt_uint32_t ticks)
+rt_uint32_t _SysTick_Config(rt_uint32_t ticks)
 {
     PFIC_SetPriority(SysTick_IRQn, 0xf0);
     PFIC_SetPriority(SWI_IRQn, 0xf0);
