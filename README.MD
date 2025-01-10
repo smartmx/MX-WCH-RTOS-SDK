@@ -22,6 +22,14 @@
 | [`RT-Thread`](CH583_2_1/RT-Thread-Nano/) | 已完成 |
 | [`liteos_m`](CH583_2_1/LiteOS_m/) | 已完成 |
 
+### CH585/4
+
+| RTOS | 状态 |
+| :---- | :---- |
+| [`FreeRTOS`](CH585_4/FreeRTOS/) | 已完成 |
+| [`RT-Thread`](CH585_4/RT-Thread-Nano/) | 进行中 |
+| [`liteos_m`](CH585_4/LiteOS_m/) | 已完成 |
+
 ### CH592/1
 
 | RTOS | 状态 |
@@ -62,6 +70,7 @@ WCH Qingke内核是基于RISC-V的内核。
 | :---- | :---- | :---- |
 | CH32V103 | Qingke V3A | 不支持 |
 | CH583/2/1 | Qingke V4A | 不支持 |
+| CH585/4 | Qingke V3C | 不支持 |
 | CH32V203 | Qingke V4B | 不支持 |
 | CH592/1 | Qingke V4C | 不支持 |
 | CH32V208 | Qingke V4C | 不支持 |
