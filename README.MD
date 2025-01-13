@@ -27,7 +27,7 @@
 | RTOS | 状态 |
 | :---- | :---- |
 | [`FreeRTOS`](CH585_4/FreeRTOS/) | 已完成 |
-| [`RT-Thread`](CH585_4/RT-Thread-Nano/) | 进行中 |
+| [`RT-Thread`](CH585_4/RT-Thread-Nano/) | 已完成 |
 | [`liteos_m`](CH585_4/LiteOS_m/) | 已完成 |
 
 ### CH592/1
