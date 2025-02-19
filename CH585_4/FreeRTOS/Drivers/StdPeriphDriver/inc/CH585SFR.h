@@ -125,7 +125,7 @@ typedef volatile unsigned long long  *PUINT64V;
 #endif
 
 #ifdef  DEBUG
-#define PRINT(X...)     printf_(X)
+#define PRINT(X...) printf_(X)
 #else
 #define PRINT(X...)
 #endif
@@ -285,7 +285,7 @@ extern "C" {
 //( (( RB_CLK_SYS_MOD[0] ? Fpll_div2 : (RB_OSC32M_SEL ? Fck32m : Fck16m) ) / RB_CLK_PLL_DIV 
 
 // default: Fsys = Fck16m/ RB_CLK_PLL_DIV = 16MHz / 3 = 5.33MHz
-//   range: 32KHz, 1MHz~32MHz, 9.75MHz～78MHz
+//   range: 32KHz, 1MHz~32MHz, 9.75MHz锝�78MHz
 
 /* System: sleep control register */
 #define R32_SLEEP_CONTROL   (*((PUINT32V)0x4000100C)) // RWA, sleep control, SAM
@@ -486,7 +486,7 @@ extern "C" {
 /* System: ADC and Touch-key register */
 #define R32_ADC_CTRL        (*((PUINT32V)0x40001058)) // RW, ADC control
 #define R8_ADC_CHANNEL      (*((PUINT8V)0x40001058))  // RW, ADC input channel selection
-#define  RB_ADC_CH_INX      0x1F                      // RW, ADC input channel index, 00~0D=A0～A13, 0E=VBAT, 0F=TS, 10=NFC energy check channel
+#define  RB_ADC_CH_INX      0x1F                      // RW, ADC input channel index, 00~0D=A0锝濧13, 0E=VBAT, 0F=TS, 10=NFC energy check channel
 #define R8_ADC_CFG          (*((PUINT8V)0x40001059))  // RW, ADC configure
 #define  RB_ADC_POWER_ON    0x01                      // RW, ADC power control: 0=power down, 1=power on
 #define  RB_ADC_BUF_EN      0x02                      // RW, ADC input buffer enable 

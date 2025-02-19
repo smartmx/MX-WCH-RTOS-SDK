@@ -23,20 +23,20 @@
 #ifndef _PRINTF_CONFIG_H_
 #define _PRINTF_CONFIG_H_
 
-#include "config.h"
+#include "mx_sdk.h"
 
 __always_inline void putchar_(char c)
 {
-#if DEBUG == Debug_UART0
+#if MX_DEBUG_UART == Debug_UART0
     while(R8_UART0_TFC == UART_FIFO_SIZE);                  /* 等待数据发送 */
     R8_UART0_THR = c;   /* 发送数据 */
-#elif DEBUG == Debug_UART1
+#elif MX_DEBUG_UART == Debug_UART1
     while(R8_UART1_TFC == UART_FIFO_SIZE);                  /* 等待数据发送 */
     R8_UART1_THR = c;   /* 发送数据 */
-#elif DEBUG == Debug_UART2
+#elif MX_DEBUG_UART == Debug_UART2
     while(R8_UART2_TFC == UART_FIFO_SIZE);                  /* 等待数据发送 */
     R8_UART2_THR = c;   /* 发送数据 */
-#elif DEBUG == Debug_UART3
+#elif MX_DEBUG_UART == Debug_UART3
     while(R8_UART3_TFC == UART_FIFO_SIZE);                  /* 等待数据发送 */
     R8_UART3_THR = c;   /* 发送数据 */
 #endif

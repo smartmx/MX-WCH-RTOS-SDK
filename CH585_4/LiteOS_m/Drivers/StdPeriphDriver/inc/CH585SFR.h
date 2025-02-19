@@ -125,7 +125,7 @@ typedef volatile unsigned long long  *PUINT64V;
 #endif
 
 #ifdef  DEBUG
-#define PRINT(X...)     printf_(X)
+#define PRINT(X...) printf_(X)
 #else
 #define PRINT(X...)
 #endif
@@ -285,7 +285,7 @@ extern "C" {
 //( (( RB_CLK_SYS_MOD[0] ? Fpll_div2 : (RB_OSC32M_SEL ? Fck32m : Fck16m) ) / RB_CLK_PLL_DIV 
 
 // default: Fsys = Fck16m/ RB_CLK_PLL_DIV = 16MHz / 3 = 5.33MHz
-//   range: 32KHz, 1MHz~32MHz, 9.75MHz～78MHz
+//   range: 32KHz, 1MHz~32MHz, 9.75MHz锝�78MHz
 
 /* System: sleep control register */
 #define R32_SLEEP_CONTROL   (*((PUINT32V)0x4000100C)) // RWA, sleep control, SAM
@@ -486,7 +486,7 @@ extern "C" {
 /* System: ADC and Touch-key register */
 #define R32_ADC_CTRL        (*((PUINT32V)0x40001058)) // RW, ADC control
 #define R8_ADC_CHANNEL      (*((PUINT8V)0x40001058))  // RW, ADC input channel selection
-#define  RB_ADC_CH_INX      0x1F                      // RW, ADC input channel index, 00~0D=A0～A13, 0E=VBAT, 0F=TS, 10=NFC energy check channel
+#define  RB_ADC_CH_INX      0x1F                      // RW, ADC input channel index, 00~0D=A0锝濧13, 0E=VBAT, 0F=TS, 10=NFC energy check channel
 #define R8_ADC_CFG          (*((PUINT8V)0x40001059))  // RW, ADC configure
 #define  RB_ADC_POWER_ON    0x01                      // RW, ADC power control: 0=power down, 1=power on
 #define  RB_ADC_BUF_EN      0x02                      // RW, ADC input buffer enable 
@@ -520,8 +520,8 @@ extern "C" {
 #define  RB_TKEY_DRV_EN      0x04                     // RW, enable touch-key drive shielding
 #define  RB_TKEY_CURRENT     0x02                     // RW, select touch-key charge current, 1=60%, 0=current rating 
 #define  RB_TKEY_PWR_ON      0x01                     // RW, enable touch-key power control   
-#define R32_TKEY_SEL	    (*((PUINT32V)0x4000107C)) // RW, Touchkey sel
-#define  RB_TKEY_DRV_OUTEN 	0xFFFC0000                   // RW, Touchkey multi_drive shields each channel,high enable
+#define R32_TKEY_SEL        (*((PUINT32V)0x4000107C)) // RW, Touchkey sel
+#define  RB_TKEY_DRV_OUTEN  0xFFFC0000                   // RW, Touchkey multi_drive shields each channel,high enable
 #define R32_ADC_DMA_CTRL    (*((PUINT32V)0x40001060)) // RW, ADC DMA control
 #define R8_ADC_CTRL_DMA     (*((PUINT8V)0x40001061))  // RW, ADC DMA control
 #define  RB_ADC_DMA_ENABLE  0x01                      // RW, ADC DMA enable
@@ -538,7 +538,7 @@ extern "C" {
 #define R32_ADC_DMA_NOW     (*((PUINT32V)0x40001064)) // RW, ADC DMA current address
 #define R32_ADC_DMA_BEG     (*((PUINT32V)0x40001068)) // RW, ADC DMA begin address
 #define R32_ADC_DMA_END     (*((PUINT32V)0x4000106C)) // RW, ADC DMA end address
-#define R32_ADC_SCAN_CFG1	(*((PUINT32V)0x40001070)) // RW, ADC channel scan config 
+#define R32_ADC_SCAN_CFG1   (*((PUINT32V)0x40001070)) // RW, ADC channel scan config
 #define  RB_ADC_SCAN_CH1     0x000F                   // RW, channel1 analog input channel select  
 #define  RB_ADC_SCAN_CH2     0x00F0                   // RW, channel2 analog input channel select   
 #define  RB_ADC_SCAN_CH3     0x0F00                   // RW, channel3 analog input channel select   
@@ -547,7 +547,7 @@ extern "C" {
 #define  RB_ADC_SCAN_CH6     0x00F00000               // RW, channel6 analog input channel select       
 #define  RB_ADC_SCAN_CH7     0x0F000000               // RW, channel7 analog input channel select       
 #define  RB_ADC_SCAN_CH8     0xF0000000               // RW, channel8 analog input channel select       
-#define R32_ADC_SCAN_CFG2	(*((PUINT32V)0x40001074)) // RW, ADC channel scan config 
+#define R32_ADC_SCAN_CFG2   (*((PUINT32V)0x40001074)) // RW, ADC channel scan config
 #define  RB_ADC_SCAN_CH9         0x000F               // RW, channel9 analog input channel select   
 #define  RB_ADC_SCAN_CH10        0x00F0               // RW, channel10 analog input channel select    
 #define  RB_ADC_SCAN_CH11        0x0F00               // RW, channel11 analog input channel select   
@@ -1082,17 +1082,17 @@ extern "C" {
 #define R32_SPI0_DMA_END    (*((PUINT32V)0x4000401C)) // RW, SPI0 DMA end address
 
 /* SPI1 register */
-#define R8_SPI1_CTRL_MOD	(*((PUINT8V)0x40004400))  // RW, SPI1 mode control	
-#define R8_SPI1_CTRL_CFG	(*((PUINT8V)0x40004401))  // RW, SPI1 configuration control
-#define R8_SPI1_INTER_EN	(*((PUINT8V)0x40004402))  // RW, SPI1 interrupt enable
-#define R8_SPI1_CLOCK_DIV	(*((PUINT8V)0x40004403))  // RW, SPI1 master clock divisor
-#define R8_SPI1_BUFFER	    (*((PUINT8V)0x40004404))  // RO, SPI1 data buffer  	
-#define R8_SPI1_RUN_FLAG	(*((PUINT8V)0x40004405))  // RO, SPI1 work flag  	
-#define R8_SPI1_INT_FLAG	(*((PUINT8V)0x40004406))  // RW1, SPI1 interrupt flag  	
-#define R8_SPI1_FIFO_COUNT	(*((PUINT8V)0x40004407))  // RO, SPI1 FIFO count status  	
-#define R16_SPI1_TOTAL_CNT	(*((PUINT16V)0x4000440C)) // RW, SPI1 total byte count, only low 12 bit	
-#define R8_SPI1_FIFO	    (*((PUINT8V)0x40004410))  // RO/WO, SPI1 FIFO register  	
-#define R8_SPI1_FIFO_COUNT1	(*((PUINT8V)0x40004413))  // RO, SPI1 FIFO count status  	
+#define R8_SPI1_CTRL_MOD    (*((PUINT8V)0x40004400))  // RW, SPI1 mode control
+#define R8_SPI1_CTRL_CFG    (*((PUINT8V)0x40004401))  // RW, SPI1 configuration control
+#define R8_SPI1_INTER_EN    (*((PUINT8V)0x40004402))  // RW, SPI1 interrupt enable
+#define R8_SPI1_CLOCK_DIV   (*((PUINT8V)0x40004403))  // RW, SPI1 master clock divisor
+#define R8_SPI1_BUFFER      (*((PUINT8V)0x40004404))  // RO, SPI1 data buffer
+#define R8_SPI1_RUN_FLAG    (*((PUINT8V)0x40004405))  // RO, SPI1 work flag
+#define R8_SPI1_INT_FLAG    (*((PUINT8V)0x40004406))  // RW1, SPI1 interrupt flag
+#define R8_SPI1_FIFO_COUNT  (*((PUINT8V)0x40004407))  // RO, SPI1 FIFO count status
+#define R16_SPI1_TOTAL_CNT  (*((PUINT16V)0x4000440C)) // RW, SPI1 total byte count, only low 12 bit
+#define R8_SPI1_FIFO        (*((PUINT8V)0x40004410))  // RO/WO, SPI1 FIFO register
+#define R8_SPI1_FIFO_COUNT1 (*((PUINT8V)0x40004413))  // RO, SPI1 FIFO count status
 
 /* SPI register address offset and bit define */
 #define SPI_FIFO_SIZE       8                         // SPI FIFO size (depth)
@@ -1284,7 +1284,7 @@ extern "C" {
 #define PWM10_DATA_HOLD     10
 #define PWM11_DATA_HOLD     11
 /* LED register */
-#define R8_LED_CTRL_MOD	    (*((PUINT8V)0x4000F000))  // RW, LED mode config register  
+#define R8_LED_CTRL_MOD     (*((PUINT8V)0x4000F000))  // RW, LED mode config register
 #define  RB_LED_BIT_ORDER   0x01                      // RW, LED serial bit director select 0=hign first, 1=low first      
 #define  RB_LED_ALL_CLEAR   0x02                      // RW, force LED FIFO/count/interupt flag clear      
 #define  RB_LED_OUT_POLAR   0x04                      // RW, LED data output inverted      
@@ -1292,27 +1292,27 @@ extern "C" {
 #define  RB_LED_DMA_EN      0x10                      // RW, enable LED DMA and DMA interupt  
 #define  RB_LED_IE_FIFO     0x20                      // RW, enable LED fifo count <=2 interupt    
 #define  RB_LED_CHAN_MOD    0xC0                      // RW, LED channel mode select, 00=LED0, 01=LED0/1, 10=LED0~3, 11=LED0~7  
-#define R8_LED_CLOCK_DIV	(*((PUINT8V)0x4000F001))  // RW, LED serial clk div register   
+#define R8_LED_CLOCK_DIV    (*((PUINT8V)0x4000F001))  // RW, LED serial clk div register
 #define  RB_LED_CLOCK_DIV   0xFF                      // RW, paramater of LED output clk divider
-#define R8_LED_CTRL_MOD1	(*((PUINT8V)0x4000F002))  // RW, LED mode config1 register  
+#define R8_LED_CTRL_MOD1    (*((PUINT8V)0x4000F002))  // RW, LED mode config1 register
 #define  RB_LED_DMA_LOOP    0x01                      // RW, enable LED DMA data loop
 #define  RB_IE_SEND_END     0x02                      // RW, enable DMA data transfer interupt 
-#define R16_LED_STATUS	    (*((PUINT16V)0x4000F004)) // RW, LED status register    
+#define R16_LED_STATUS      (*((PUINT16V)0x4000F004)) // RW, LED status register
 #define  RB_LED_FIFO_COUNT  0x0F                      // RO, LED fifo current count   
 #define  RB_LED_CLOCK       0x20                      // RO, LED clock current status
 #define  RB_LED_IF_FIFO     0x40                      // RW1, FIFO count <=2 flag, clear RB_LED_IF_FIFO 
 #define  RB_LED_LOAD_FAIL   0x80                      // R0, result of LED data loading   
 #define  RB_LED_IF_DMA_END  0x0100                    // RW1, LED DMA complete flag, clear RB_LED_IF_DMA_END  
 #define  RB_LED_IF_DMA_INT  0x0200                    // RW1, LED DMA transfer complete flag, clear RB_LED_IF_DMA_INT   
-#define R32_LED_FIFO	    (*((PUINT32V)0x4000F008)) // RW, LED data fifo register    
+#define R32_LED_FIFO        (*((PUINT32V)0x4000F008)) // RW, LED data fifo register
 #define  RB_LED_FIFO        0xFFFFFFFF                // WO, LED fifo data input
-#define R16_LED_DMA_LEN	    (*((PUINT16V)0x4000F010)) // RW, LED DMA send length  
+#define R16_LED_DMA_LEN     (*((PUINT16V)0x4000F010)) // RW, LED DMA send length
 #define  RB_LED_DMA_LEN     0x0FFF                    // WO, LED DMA send length
-#define R16_LED_DMA_CNT	    (*((PUINT16V)0x4000F014)) // RW, LED DMA remain count  
+#define R16_LED_DMA_CNT     (*((PUINT16V)0x4000F014)) // RW, LED DMA remain count
 #define  RB_LED_DMA_CNT     0x0FFF                    // RO, LED DMA main buffer remain data cnt
-#define R32_LED_DMA_BEG	    (*((PUINT32V)0x4000F018)) // RW, LED DMA begin address  
+#define R32_LED_DMA_BEG     (*((PUINT32V)0x4000F018)) // RW, LED DMA begin address
 #define  RB_LED_DMA_BEG     0x01FFFC                  // RW, LED DMA start adress
-#define R32_LED_DMA_CUR	    (*((PUINT32V)0x4000F01C)) // RW, LED DMA current address  
+#define R32_LED_DMA_CUR     (*((PUINT32V)0x4000F01C)) // RW, LED DMA current address
 #define  RB_LED_DMA_CUR     0x01FFFC                  // RW, LED DMA now address
 /* LCD register */
 #define R8_LCD_CMD         (*((PUINT8V)(0x40006000)))
@@ -1403,7 +1403,7 @@ typedef enum IRQn
   Reset_IRQn                    = 1,
   NMI_IRQn                      = 2,      /*!<  Non Maskable Interrupt   */
   EXC_IRQn                      = 3,      /*!<  Exceptions Interrupt     */
-  SysTick_IRQn                  = 12,	  /*!<  System timer Interrupt  */
+  SysTick_IRQn                  = 12,     /*!<  System timer Interrupt  */
   SWI_IRQn                      = 14,     /*!<  software Interrupt */
   TMR0_IRQn                     = 16,
   GPIO_A_IRQn                   = 17,

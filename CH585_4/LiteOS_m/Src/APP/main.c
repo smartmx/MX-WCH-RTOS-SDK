@@ -12,7 +12,7 @@
 
 /******************************************************************************/
 /* 头文件包含 */
-#include "CH58x_common.h"
+#include "mx_sdk.h"
 #include "config.h"
 #include "peripheral.h"
 #include "HAL.h"
@@ -214,11 +214,7 @@ LITE_OS_SEC_TEXT_INIT int main(void)
 #endif
 
 #ifdef DEBUG
-    GPIOA_SetBits(GPIO_Pin_14);
-    GPIOPinRemap(ENABLE, RB_PIN_UART0);
-    GPIOA_ModeCfg(GPIO_Pin_15, GPIO_ModeIN_PU);
-    GPIOA_ModeCfg(GPIO_Pin_14, GPIO_ModeOut_PP_5mA);
-    UART0_DefInit();
+    mx_debug_uart_init(115200);
 #endif
 
     PRINT("start.\n");

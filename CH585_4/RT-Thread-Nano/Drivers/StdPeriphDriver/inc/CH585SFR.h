@@ -285,7 +285,7 @@ extern "C" {
 //( (( RB_CLK_SYS_MOD[0] ? Fpll_div2 : (RB_OSC32M_SEL ? Fck32m : Fck16m) ) / RB_CLK_PLL_DIV 
 
 // default: Fsys = Fck16m/ RB_CLK_PLL_DIV = 16MHz / 3 = 5.33MHz
-//   range: 32KHz, 1MHz~32MHz, 9.75MHz～78MHz
+//   range: 32KHz, 1MHz~32MHz, 9.75MHz 78MHz
 
 /* System: sleep control register */
 #define R32_SLEEP_CONTROL   (*((PUINT32V)0x4000100C)) // RWA, sleep control, SAM
