@@ -24,6 +24,7 @@
 #include "los_debug.h"
 #include "los_compiler.h"
 #include "los_sem.h"
+#include "mx_sdk.h"
 
 static UINT32 g_semId;
 
@@ -211,11 +212,11 @@ LITE_OS_SEC_TEXT_INIT int main(void)
     GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
     GPIOB_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 #endif
+
 #ifdef DEBUG
-    GPIOA_SetBits(bTXD1);
-    GPIOA_ModeCfg(bTXD1, GPIO_ModeOut_PP_5mA);
-    UART1_DefInit();
+    mx_debug_uart_init(115200);
 #endif
+
     PRINT("start.\n");
 
     ret = LOS_KernelInit();

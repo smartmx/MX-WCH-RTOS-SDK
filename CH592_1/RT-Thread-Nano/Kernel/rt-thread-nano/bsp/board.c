@@ -66,7 +66,7 @@ void rt_hw_board_init()
     SetVTFIRQ((uint32_t)SysTick_Handler, SysTick_IRQn, 1, ENABLE);          /* 提升systick中断速度，不从统一入口执行，在处理期间不可中断嵌套 */
 
     /* System Tick Configuration */
-    __SysTick_Config(GetSysClock() / RT_TICK_PER_SECOND);
+    _SysTick_Config(GetSysClock() / RT_TICK_PER_SECOND);
 
     /* Call components board initial (use INIT_BOARD_EXPORT()) */
 #ifdef RT_USING_COMPONENTS_INIT

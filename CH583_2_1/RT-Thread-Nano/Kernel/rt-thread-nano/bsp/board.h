@@ -25,7 +25,7 @@ extern int _ebss;
 #define HEAP_BEGIN  ((void *)&_ebss)
 #define HEAP_END    (SRAM_END-2048) //reserved for IRQ
 
-rt_uint32_t __SysTick_Config(rt_uint32_t ticks);
+rt_uint32_t _SysTick_Config(rt_uint32_t ticks);
 void rt_hw_board_init(void);
 
 #endif /* __BOARD_H__ */
