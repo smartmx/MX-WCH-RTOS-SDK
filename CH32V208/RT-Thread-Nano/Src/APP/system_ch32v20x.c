@@ -612,31 +612,6 @@ static void SetSysClockTo96(void)
 {
     __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
 
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    /* 初始化时钟 */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | \
-            RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_TIM1 | \
-            RCC_APB2Periph_GPIOE | RCC_APB2Periph_AFIO, ENABLE );
-
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);  /* 开启DMA时钟 */
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 | RCC_APB1Periph_TIM3 | RCC_APB1Periph_TIM4 | RCC_APB1Periph_TIM5, ENABLE);
-
-    /* 初始化GPIO PIN */
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-    GPIO_ResetBits(GPIOC, GPIO_Pin_13);     /* 低电平使能32Mhz晶振 */
-
-    /* 开关芯片集成电容约4pf，CH32V208内部电容选用16pf，晶振为20pf，根据实际情况调整 */
-    OSC->HSE_CAL_CTRL &= ~(0x07<<28);
-    OSC->HSE_CAL_CTRL |= 0x03<<28;
-
-    /* HSE起振电流调节 */
-    OSC->HSE_CAL_CTRL |= 3<<24;
-
     RCC->CTLR |= ((uint32_t)RCC_HSEON);
 
     /* Wait till HSE is ready and if Time out is reached exit */
