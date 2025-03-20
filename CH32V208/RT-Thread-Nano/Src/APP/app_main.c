@@ -189,7 +189,7 @@ MSH_CMD_EXPORT(msh_test_print, this is a msh test);
 int main(void)
 {
 
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 
     rt_enter_critical();
 

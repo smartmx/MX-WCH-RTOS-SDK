@@ -4,8 +4,10 @@
  * Version            : V1.0.0
  * Date               : 2022/06/16
  * Description        : CH32V20x Device Peripheral Access Layer System Header File.
- * Copyright (c) 2022 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ *********************************************************************************
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * Attention: This software (modified or not) and binary are used for
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
 #ifndef __SYSTEM_ch32v20x_H
@@ -20,7 +22,7 @@ extern uint32_t SystemCoreClock; /* System Clock Frequency (Core Clock) */
 /* System_Exported_Functions */
 extern void SystemInit(void);
 extern void SystemCoreClockUpdate(void);
-extern void SetSysClock(void);
+
 
 #ifdef __cplusplus
 }

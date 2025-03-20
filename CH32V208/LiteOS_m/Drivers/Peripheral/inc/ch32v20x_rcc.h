@@ -2,7 +2,7 @@
  * File Name          : ch32v20x_rcc.h
  * Author             : WCH
  * Version            : V1.0.0
- * Date               : 2021/06/06
+ * Date               : 2024/02/21
  * Description        : This file provides all the RCC firmware functions.
 *********************************************************************************
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
@@ -92,7 +92,7 @@ typedef struct
 #define RCC_USBCLKSource_PLLCLK_Div2    ((uint8_t)0x01)
 #define RCC_USBCLKSource_PLLCLK_Div3    ((uint8_t)0x02)
 
-#ifdef CH32V20x_D8W
+#if defined (CH32V20x_D8) || defined (CH32V20x_D8W)
   #define RCC_USBCLKSource_PLLCLK_Div5    ((uint8_t)0x03)
 
 #endif
@@ -111,7 +111,12 @@ typedef struct
 /* RTC_clock_source */
 #define RCC_RTCCLKSource_LSE           ((uint32_t)0x00000100)
 #define RCC_RTCCLKSource_LSI           ((uint32_t)0x00000200)
+
+#if defined(CH32V20x_D8) || defined(CH32V20x_D8W)
+#define RCC_RTCCLKSource_HSE_Div512    ((uint32_t)0x00000300)
+#else
 #define RCC_RTCCLKSource_HSE_Div128    ((uint32_t)0x00000300)
+#endif
 
 /* AHB_peripheral */
 #define RCC_AHBPeriph_DMA1             ((uint32_t)0x00000001)
@@ -122,7 +127,8 @@ typedef struct
 #define RCC_AHBPeriph_RNG              ((uint32_t)0x00000200)
 #define RCC_AHBPeriph_SDIO             ((uint32_t)0x00000400)
 #define RCC_AHBPeriph_USBHS            ((uint32_t)0x00000800)
-#define RCC_AHBPeriph_OTG_FS           ((uint32_t)0x00001000)
+#define RCC_AHBPeriph_USBFS            ((uint32_t)0x00001000)
+#define RCC_AHBPeriph_OTG_FS           RCC_AHBPeriph_USBFS
 
 #ifdef CH32V20x_D8W
 #define RCC_AHBPeriph_BLE_CRC          ((uint32_t)0x00030040)
@@ -244,6 +250,7 @@ void        RCC_ClearFlag(void);
 ITStatus    RCC_GetITStatus(uint8_t RCC_IT);
 void        RCC_ClearITPendingBit(uint8_t RCC_IT);
 void        RCC_ADCCLKADJcmd(FunctionalState NewState);
+FlagStatus  RCC_USB5PRE_JUDGE();
 
 #if defined(CH32V20x_D8) || defined(CH32V20x_D8W)
 void RCC_ETHDIVConfig(uint32_t RCC_ETHPRE_Div);

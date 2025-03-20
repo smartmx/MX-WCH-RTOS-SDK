@@ -230,7 +230,7 @@ int main(void)
 {
     unsigned int ret;
 
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 
 #ifdef DEBUG
     USART_Printf_Init(115200);
