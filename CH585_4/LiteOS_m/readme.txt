@@ -24,7 +24,7 @@
 		
 	11.统一入口的中断函数无需调用ArchIntEnter和ArchIntExit，在用户统一入口unified_interrupt_entry中已经调用。
 
-	12.CH585的蓝牙会采用类似于RTOS操作，在中断中切换到另一个运行环境等待蓝牙事件完成，所以如果使用蓝牙，则必须在ble_task_scheduler.S中，添加调用其他函数用来停止FreeRTOS操作系统，防止在蓝牙内部任务中被切换。
+	12.CH585的蓝牙会采用类似于RTOS操作，在中断中切换到另一个运行环境等待蓝牙事件完成，所以如果使用蓝牙，则必须在ble_task_scheduler.S中，添加调用其他函数用来停止liteos操作系统，防止在蓝牙内部任务中被切换。
 
 	13.CH585不可以使用原core_riscv.h中的 __enable_irq 和 __disable_irq 函数，使用liteos中提供的 LOS_IntLock 和 LOS_IntRestore。
 	
