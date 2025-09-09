@@ -1,7 +1,7 @@
 /********************************** (C) COPYRIGHT ******************************
  * File Name         : wchrf.h
  * Author            : WCH
- * Version           : V1.20
+ * Version           : V1.40
  * Date              : 2024/9/27
  * Description       : head file(CH585/CH584)
  *
@@ -84,6 +84,22 @@ typedef struct
 #define  RF_ROLE_BOUND_MAX       (0x07)
 #define  RF_ROLE_BOUND_ID        RF_ROLE_ID_INVALD
 #define  RF_ROLE_DISCARDED_EN    (1<<3)
+
+#define  RF_BOUND_MUTI_MAX        2
+#define  RF_BOUND_4K_MAX          7
+
+/* bound status */
+#define BOUND_STA_SUCCESS        0x00   //!< Success
+#define BOUND_STA_FAILURE        0x01   //!< Failure
+#define BOUND_STA_INVALIDPARM    0x02   //!< Invalid request field
+#define BOUND_STA_TIMEOUT        0x17   //!< timeout
+
+/* bound request */
+#define  BOUND_REQ_TYPE          0x01  //!< 4k mode
+#define  BOUND_FAST_REQ_TYPE     0x02  //!< 8k mode
+#define  BOUND_MUTI_REQ_TYPE     0x04  //!< muti fast mode
+#define  BOUND_LP_REQ_TYPE       0x10  //!< lower power mode
+
 /* package type */
 typedef struct
 {
@@ -106,6 +122,7 @@ typedef struct
     uint16_t rxMaxLen;            //!< The maximum length of data received
     uint16_t sendInterval;        //!< Resend interval N*0.5us
     uint16_t sendTime;            //!< Time to switch from Rx t0 Tx (N*0.5us)+24us
+    uint8_t mapCheckCount;        //!< Set the threshold of continuous packet loss to determine the quality of the channel.(default 2)
 } rfRoleParam_t;
 
 /* rfip tx parameter */
@@ -132,7 +149,7 @@ typedef struct
     uint32_t frequency;           //!< rf frequency (2400000kHz-2483500kHz)
     uint32_t properties;          //!< bit0: 0-whitening on 1-whitening off
                                   //!< bit1: 0-  1-send ack
-                                  //!< BIT4-5 00-1M  01-2M  10-coded(S8) 11-coded(S2)
+                                  //!< BIT4-5 00-1M  01-2M
     uint32_t rxDMA;               //!< Rx DMA address
     uint8_t  whiteChannel;        //!< white channel(properties bit2 = 1)
     uint16_t rxMaxLen;            //!< Maximum length of Rx data
@@ -142,9 +159,10 @@ typedef struct
 typedef struct
 {
     bStatus_t status; //!< Status for the connection
-    /* SUCESS
-     * bleTimeout:When the connection times out, it automatically switches to the bindable state
-     * FAILURE:If the device binding fails on the device side, the application layer needs to restart the binding */
+    /* SUCCESS
+     * BOUND_STA_FAILURE: If the device binding fails on the device side, the application layer needs to restart the binding
+     * BOUND_STA_INVALIDPARM: When the host receives a mismatched connection request, devType indicates the bound request type of the peer side
+     * BOUND_STA_TIMEOUT: When the connection times out, it automatically switches to the bind state */
     uint8_t role;     //!< the role of the binding
     uint8_t devId;    //!< The ID number of the binding
     uint8_t devType;  //!< The device type of the binding
@@ -187,7 +205,7 @@ typedef struct
     uint8_t devType;   //!< reserved
     uint16_t timeout; //!< Connection communication timeout period (in about 1 ms)
     uint8_t OwnInfo[6]; //!< Local Information
-    uint8_t PeerInfo[6];   //!< Peer information
+    uint8_t PeerInfo[6];   //!< resv
     pfnRfRoleBoundCB rfBoundCB;
     uint32_t ChannelMap;  //!< indicating  Used and Unused data channels.Every channel is represented with a
                           //!< bit positioned as per the data channel index,The LSB represents data channel index 0
@@ -208,6 +226,21 @@ typedef struct
     uint8_t number;  //!< Number of lists
     rfRoleList_t *pList; //!< listing information
 } rfRoleSpeed_t;
+
+/* The timing of communication for devices */
+typedef struct __attribute__((packed))
+{
+    uint8_t sub1Number;
+    uint8_t sub2Number;
+    uint16_t subInterval[16]; //!< 0.5us
+} rfDevsTimeing_t;
+
+/* bound frequency lists */
+typedef struct
+{
+    uint8_t number;  //!< Number of lists
+    uint32_t *pFrequency; //!< listing information
+} rfHostBoundFre_t;
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
@@ -259,6 +292,24 @@ void RFIP_Calibration( void );
 void RFIP_WakeUpRegInit( void );
 
 /**
+ * @brief   rf mode single channel mode.
+ *
+ * @param   ch - rf channel,f=2402+ch*2 MHz, ch=0,...,39
+ *
+ * @return  0 - success, 1- phy busy
+ */
+bStatus_t RFIP_SingleChannel( uint8_t ch );
+
+/**
+ * @brief   used to stop single channel mode.
+ *
+ * @param   None.
+ *
+ * @return  None.
+ */
+void RFIP_TestEnd( void );
+
+/**
  * @brief   library-fast initial
  *
  * @param   pConf - rfRole config
@@ -268,7 +319,7 @@ void RFIP_WakeUpRegInit( void );
 bStatus_t RFRole_FastInit( rfRoleConfig_t *pConf );
 
 /**
- * @brief   used to stop
+ * @brief   used to stop TX/RX
  *
  * @param   None
  *
@@ -304,6 +355,66 @@ bStatus_t RFRole_SetParam( rfRoleParam_t *pParam );
 bStatus_t RFBound_SetSpeedType( rfRoleSpeed_t *pList_t );
 
 /**
+ * @brief   the list of communication frequencies for binding purposes
+ *
+ * @param   pList_t - the list of binding frequencies lists(global)
+ *
+ * @return  0-success.
+ *
+ * note:    The host mode polls the configured frequency at a 1ms cycle.
+ *          The device mode polls the configured frequency at an 8ms cycle.
+ *
+ */
+bStatus_t RFBound_SetFrequencyList( rfHostBoundFre_t *pList_t );
+
+/**
+ * @brief   set speed of devices(muti fast mode)
+ *
+ * @param   pList -
+ *
+ * @return  0-success.
+ */
+bStatus_t RFRole_SetDevTimeing( rfDevsTimeing_t *pList );
+
+/**
+ * @brief  Start sending
+ *
+ * note:  If sending is currently in progress, wait until the previous data packets have been sent before sending.
+ *
+ * @param   pList -
+ *
+ * @return  0-success.
+ */
+void RFRole_StartLpTx( void );
+
+/**
+ * @brief   Stop binding, disconnect the connection, and clear the sending and receiving data status.
+ *
+ * @param   None
+ *
+ * @return  0-success.
+ */
+bStatus_t RFBound_Stop( void );
+
+/**
+ * @brief   start host mode(lower power)
+ *
+ * @param   pConfig - host configuration information
+ *
+ * @return  0-success.
+ */
+bStatus_t RFBound_StartLpHost( rfBoundHost_t *pConfig );
+
+/**
+ * @brief   start host mode(muti fast)
+ *
+ * @param   pConfig - host configuration information
+ *
+ * @return  0-success.
+ */
+bStatus_t RFBound_StartMutiHost( rfBoundHost_t *pConfig );
+
+/**
  * @brief   start host mode(8k)
  *
  * @param   pConfig - host configuration information
@@ -313,22 +424,31 @@ bStatus_t RFBound_SetSpeedType( rfRoleSpeed_t *pList_t );
 bStatus_t RFBound_Start8kHost( rfBoundHost_t *pConfig );
 
 /**
- * @brief   start host mode(unack)
- *
- * @param   pConfig - host configuration information
- *
- * @return  0-success.
- */
-bStatus_t RFBound_StartUnackHost( rfBoundHost_t *pConfig );
-
-/**
- * @brief   start host mode
+ * @brief   start host mode(4k)
  *
  * @param   pConfig - host configuration information
  *
  * @return  0-success.
  */
 bStatus_t RFBound_StartHost( rfBoundHost_t *pConfig );
+
+/**
+ * @brief   start device mode(lower power)
+ *
+ * @param   None.
+ *
+ * @return  0-success.
+ */
+bStatus_t RFBound_StartLpDevice( rfBoundDevice_t *pConfig );
+
+/**
+ * @brief   start device mode(muti fast)
+ *
+ * @param   None.
+ *
+ * @return  0-success.
+ */
+bStatus_t RFBound_StartMutiDevice( rfBoundDevice_t *pConfig );
 
 /**
  * @brief   start device mode(8k)
@@ -340,16 +460,7 @@ bStatus_t RFBound_StartHost( rfBoundHost_t *pConfig );
 bStatus_t RFBound_Start8kDevice( rfBoundDevice_t *pConfig );
 
 /**
- * @brief   start device mode(unack)
- *
- * @param   pConfig - device configuration information
- *
- * @return  0-success.
- */
-bStatus_t RFBound_StartUnackDevice( rfBoundDevice_t *pConfig );
-
-/**
- * @brief   start device mode
+ * @brief   start device mode(4k)
  *
  * @param   pConfig - device configuration information
  *
@@ -367,15 +478,6 @@ bStatus_t RFBound_StartDevice( rfBoundDevice_t *pConfig );
 bStatus_t RFRole_ClearTxData( uint8_t dev_id );
 
 /**
- * @brief   clear data list
- *
- * @param   dev_id
- *
- * @return  0-success.
- */
-bStatus_t RFRole_ClearRxData( uint8_t dev_id );
-
-/**
  * @brief   switch rf mode,must idle status.
  *
  * @param   mode - 0:BLE   1:RF basic  2:RF fast
@@ -388,6 +490,7 @@ bStatus_t RFRole_SwitchMode( uint8_t mode );
  * @brief   channel map detection and start map update
  *
  * note: only the host role can be called
+ *       lower power mode and 8k mode support
  *
  * @param   rssi -
  * @param   id -
@@ -395,6 +498,40 @@ bStatus_t RFRole_SwitchMode( uint8_t mode );
  * @return  0-success.
  */
 bStatus_t RFRole_MapCheck( int8_t rssi,uint8_t id );
+
+/**
+ * @brief   Set a lower power consumption mode.
+ *
+ * note: only the device role can be called(4k&8k)
+  *
+ * @param   level - 0:disable(Slightly improve the transmission efficiency.) others: lower power level
+ *
+ * @return  None.
+ */
+void RFRole_LowPower( uint8_t level );
+
+/**
+ * @brief   start phy update.
+ *
+ * note:  supported in version 1.3 and above.
+ *        4k mode and 8k mode support
+ *
+ * @param   phy - 0:1M  1:2M
+ *
+ * @return  0-success.
+ */
+bStatus_t RFRole_PHYUpdate( uint8_t dev_id, uint8_t phy );
+
+/**
+ * @brief   get status.
+ *
+ * note:  supported in version 1.4 and above.
+ *
+ * @param   id -
+ *
+ * @return  0-idle others-busy.
+ */
+uint32_t RFRole_GetStatus( uint8_t id );
 
 /**
  * @brief   library-basic initial

@@ -1,4 +1,4 @@
-本工程为RT-Thread-Nano在Qingke V3C RISC-V内核的CH585/4上的移植。
+本工程为RT-Thread-Nano V4.1.1在Qingke V3C RISC-V内核的CH585/4上的移植。
 
 需要注意以下几点：
 

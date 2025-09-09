@@ -125,7 +125,8 @@ typedef volatile unsigned long long  *PUINT64V;
 #endif
 
 #ifdef  DEBUG
-#define PRINT(X...)     printf_(X)
+#include "printf/printf.h"
+#define PRINT(X...) printf_(X)
 #else
 #define PRINT(X...)
 #endif
@@ -285,7 +286,7 @@ extern "C" {
 //( (( RB_CLK_SYS_MOD[0] ? Fpll_div2 : (RB_OSC32M_SEL ? Fck32m : Fck16m) ) / RB_CLK_PLL_DIV 
 
 // default: Fsys = Fck16m/ RB_CLK_PLL_DIV = 16MHz / 3 = 5.33MHz
-//   range: 32KHz, 1MHz~32MHz, 9.75MHz 78MHz
+//   range: 32KHz, 1MHz~32MHz, 9.75MHz~78MHz
 
 /* System: sleep control register */
 #define R32_SLEEP_CONTROL   (*((PUINT32V)0x4000100C)) // RWA, sleep control, SAM
@@ -392,7 +393,7 @@ extern "C" {
 #define  RB_PWR_LDO_EN      0x0100                    // RWA, LDO enable 
 #define  RB_PWR_DCDC_EN     0x0200                    // RWA, DC/DC converter enable: 0=DC/DC disable and bypass, 1=DC/DC enable
 #define  RB_PWR_DCDC_PRE    0x0400                    // RWA, DC/DC converter pre-enable
-#define  RB_XT_PRE_CFG      0x1800                    // RWA, extern 32MHz HSE early wake up time configuration
+//#define  RB_XT_PRE_CFG      0x1800                    // RWA, extern 32MHz HSE early wake up time configuration
 #define  RB_PWR_MUST_0      0x2000                    // RWA, must write 0
 #define  RB_XT_PRE_EN       0x4000                    // RWA, extern 32MHz HSE early wake up enable, must be used with LSI/LSE
 #define  RB_PWR_PLAN_EN     0x8000                    // RWA/WZ, power plan enable, auto clear after sleep executed
@@ -486,7 +487,7 @@ extern "C" {
 /* System: ADC and Touch-key register */
 #define R32_ADC_CTRL        (*((PUINT32V)0x40001058)) // RW, ADC control
 #define R8_ADC_CHANNEL      (*((PUINT8V)0x40001058))  // RW, ADC input channel selection
-#define  RB_ADC_CH_INX      0x1F                      // RW, ADC input channel index, 00~0D=A0～A13, 0E=VBAT, 0F=TS, 10=NFC energy check channel
+#define  RB_ADC_CH_INX      0x1F                      // RW, ADC input channel index, 00~0D=A0~13, 0E=VBAT, 0F=TS, 10=NFC energy check channel
 #define R8_ADC_CFG          (*((PUINT8V)0x40001059))  // RW, ADC configure
 #define  RB_ADC_POWER_ON    0x01                      // RW, ADC power control: 0=power down, 1=power on
 #define  RB_ADC_BUF_EN      0x02                      // RW, ADC input buffer enable 
@@ -1243,7 +1244,9 @@ extern "C" {
 #define  RB_PWM_IF_CYC      0x80                      // RW1, interrupt flag for PWM cycle end
 #define R32_PWM_REG_DATA8   (*((PUINT32V)0x40005010)) // RW, PWM8-9 data register
 #define R16_PWM8_DATA       (*((PUINT16V)0x40005010)) // RW, PWM8 16bit data holding
+#define R16_PWM8_REG_DATA   (*((PUINT16V)0x40005010)) // RW, PWM8 16bit data holding
 #define R16_PWM9_DATA       (*((PUINT16V)0x40005012)) // RW, PWM9 16bit data holding
+#define R16_PWM9_REG_DATA   (*((PUINT16V)0x40005012)) // RW, PWM9 16bit data holding
 #define R32_PWM_REG_CYCLE   (*((PUINT32V)0x40005014)) // RW, PWM cycle value
 
 /* PWM4/5/6/7/8/9/10/11 register address offset and bit define */
@@ -1344,6 +1347,7 @@ extern "C" {
 /* Special Program Space */
 #define DATA_FLASH_ADDR     0x70000                   // start address of Data-Flash
 #define DATA_FLASH_SIZE     0x8000                    // size of Data-Flash
+#define DATA_FLASH_SIZE_584X     0x80000              // size of 584X Data-Flash, only accessible through libISP585
 #define BOOT_LOAD_ADDR      0x78000                   // start address of boot loader program
 #define BOOT_LOAD_SIZE      0x6000                    // size of boot loader program
 #define BOOT_LOAD_CFG       0x7E000                   // start address of configuration information for boot loader program
@@ -2201,9 +2205,9 @@ typedef UDISK_BOC_CSW  *PXUDISK_BOC_CSW;
 #define USBHS_UEP_R_NAK_TOG         0x20
 #define USBHS_UEP_R_TOG_MATCH       0x10
 #define USBHS_UEP_R_SETUP_IS        0x08
-#define USBHS_UEP_R_TOG_MASK        0x0C
-#define USBHS_UEP_R_TOG_MDATA       0x0C
-#define USBHS_UEP_R_TOG_DATA2       0x08
+#define USBHS_UEP_R_TOG_MASK        0x04
+//#define USBHS_UEP_R_TOG_MDATA       0x0C
+//#define USBHS_UEP_R_TOG_DATA2       0x08
 #define USBHS_UEP_R_TOG_DATA1       0x04
 #define USBHS_UEP_R_TOG_DATA0       0x00
 #define USBHS_UEP_R_RES_MASK        0x03
