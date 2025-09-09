@@ -16,6 +16,7 @@ volatile MachineMode_Call_func gs_machine_mode_func;
 
 extern uint32_t _vector_base[];
 
+uint32_t chip_info;
 /*********************************************************************
  * @fn      SetSysClock
  *
@@ -31,6 +32,7 @@ void SetSysClock(SYS_CLKTypeDef sc)
     uint16_t clk_sys_cfg;
     uint8_t i;
     uint8_t x32M_c;
+    chip_info = ((*(uint32_t*)ROM_CFG_CHIP_ID));
     R32_SAFE_MODE_CTRL |= RB_XROM_312M_SEL;
     R8_SAFE_MODE_CTRL &= ~RB_SAFE_AUTO_EN;
     sys_safe_access_enable();
@@ -83,8 +85,8 @@ void SetSysClock(SYS_CLKTypeDef sc)
             }
             else
             {
-                R8_FLASH_SCK = R8_FLASH_SCK|(1<<4);
-                R8_FLASH_CFG = 0X03;
+                R8_FLASH_SCK = R8_FLASH_SCK & (~(1<<4));
+                R8_FLASH_CFG = 0X07;
             }
         }
         else
@@ -136,12 +138,14 @@ void highcode_init(void)
     R32_SAFE_MODE_CTRL |= RB_XROM_312M_SEL;
     R8_SAFE_MODE_CTRL &= ~RB_SAFE_AUTO_EN;
     sys_safe_access_enable();
-    R32_MISC_CTRL |= 5; //
+    R32_MISC_CTRL |= 5|(3<<25); //
     R8_PLL_CONFIG &= ~(1 << 5); //
     R8_HFCK_PWR_CTRL |= RB_CLK_RC16M_PON | RB_CLK_PLL_PON;
     R16_CLK_SYS_CFG = CLK_SOURCE_HSI_PLL_62_4MHz;
+    R8_FLASH_SCK = R8_FLASH_SCK & (~(1<<4));
     R8_FLASH_CFG = 0X02;
     R8_XT32M_TUNE = (R8_XT32M_TUNE&(~0x03))|0x01;
+    R8_CK32K_CONFIG |= RB_CLK_INT32K_PON;
     R8_SAFE_MODE_CTRL |= RB_SAFE_AUTO_EN;
     sys_safe_access_disable();
 }
@@ -212,6 +216,8 @@ void MachineMode_Call(MachineMode_Call_func func)
     while(gs_machine_mode_func != NULL);
 
     PFIC_DisableIRQ(SWI_IRQn);
+
+    _vector_base[SWI_IRQn] = sw_irqtable;
 
 //    if(i != 4)
 //    {
@@ -335,6 +341,7 @@ void SYS_ResetExecute(void)
  *
  * @return  none
  */
+__HIGH_CODE
 void SYS_DisableAllIrq(uint32_t *pirqv)
 {
     *pirqv = (PFIC->ISR[0] >> 8) | (PFIC->ISR[1] << 24);
@@ -351,6 +358,7 @@ void SYS_DisableAllIrq(uint32_t *pirqv)
  *
  * @return  none
  */
+__HIGH_CODE
 void SYS_RecoverIrq(uint32_t irq_status)
 {
     PFIC->IENR[0] = (irq_status << 8);
@@ -601,3 +609,128 @@ void *__wrap_memcpy(void *dst, void *src, size_t size)
     __MCPY(dst, src, (void *)((uint32_t)src+size));
     return dst;
 }
+
+/*********************************************************************
+ * @fn      IWDG_KR_Set
+ *
+ * @brief   启动看门狗/解除读保护/喂狗/重装载计数值
+ *
+ * @param   kr     - IWDG_PR
+ *
+ * @return  none
+ */
+void IWDG_KR_Set(IWDG_KR_Key kr)
+{
+    R32_IWDG_KR = kr;
+}
+
+/*********************************************************************
+ * @fn      IWDG_PR_Set
+ *
+ * @brief   配置预分频，关闭写保护位生效
+ *
+ * @param   pr
+ *
+ * @return  none
+ */
+uint8_t IWDG_PR_Set(IWDG_32K_PR pr)
+{
+    if(IWDG_WR_Protect())   return 1;
+    else
+    {
+        R32_IWDG_CFG |= (pr << 12);
+    }
+    return 0;
+}
+
+/*********************************************************************
+ * @fn      IWDG_RLR_Set
+ *
+ * @brief   配置计数器重装载值，关闭写保护位生效
+ *
+ * @param   rlr
+ *
+ * @return  none
+ */
+uint8_t IWDG_RLR_Set(uint16_t rlr)
+{
+    uint32_t cfg;
+
+    if(IWDG_WR_Protect())   return 1;
+    else
+    {
+        cfg = R32_IWDG_CFG;
+        cfg = (R32_IWDG_CFG & ~0xFFF) | (rlr & 0xFFF);
+        R32_IWDG_CFG = cfg;
+    }
+    return 0;
+}
+
+/*********************************************************************
+ * @fn      IWDG_FollowCoreStop
+ *
+ * @brief   独立看门狗计数跟随内核停止使能，仅在调试模式下生效
+ *
+ * @param   s       - 是否使能
+ *
+ * @return  none
+ */
+uint8_t IWDG_FollowCoreStop(FunctionalState s)
+{
+    if(IWDG_WR_Protect())   return 1;
+    else
+    {
+        if(s == DISABLE)
+        {
+            R32_IWDG_CFG &= ~(1<<29);
+        }
+        else
+        {
+            R32_IWDG_CFG |= (1<<29);
+        }
+    }
+    return 0;
+}
+
+/*********************************************************************
+ * @fn      IWDG_Enable
+ *
+ * @brief   独立看门狗使能
+ *
+ * @param   pr     - 预分频
+ *          rlr    - 计数器重装载值，最大值为0xFFF
+ *
+ * @return  none
+ */
+uint8_t IWDG_Enable(IWDG_32K_PR pr, uint16_t rlr)
+{
+    uint8_t state;
+
+    sys_safe_access_enable();
+    R8_SAFE_LRST_CTRL |= RB_IWDG_RST_EN;  //看门狗复位为上电复位。若改为全局复位，需保证LSI不被关闭
+    sys_safe_access_disable();
+
+    IWDG_KR_Set(KEY_START_IWDG);
+    IWDG_KR_Set(KEY_UNPROTECT);
+    state = IWDG_PR_Set(pr);
+    if(state)  return 1;
+    state = IWDG_RLR_Set(rlr);
+    if(state)  return 1;
+
+    return 0;
+}
+
+/*********************************************************************
+ * @fn      IWDG_Feed
+ *
+ * @brief   系统必须定期重装载看门狗计数值以防止复位
+ *
+ * @param   none
+ *
+ * @return  none
+ */
+void IWDG_Feed(void)
+{
+    IWDG_KR_Set(KEY_RELOADING_COUNT);
+}
+

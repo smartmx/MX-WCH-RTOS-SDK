@@ -43,31 +43,6 @@
 
 #ifdef DEBUG
 #include <stdio.h>
-#include "printf/printf.h"
-#endif
-
-/**
- * @brief  系统主频时钟（Hz）
- */
-#ifndef	 FREQ_SYS
-#define  FREQ_SYS		62400000
-#endif
-
-#ifndef  SAFEOPERATE
-#define  SAFEOPERATE   __nop();__nop()
-#endif
-
-/**
- * @brief  32K时钟（Hz）
- */
-#ifdef CLK_OSC32K
-#if ( CLK_OSC32K == 1 )
-#define CAB_LSIFQ       32000
-#else
-#define CAB_LSIFQ       32768
-#endif
-#else
-#define CAB_LSIFQ       32000
 #endif
 
 #include <string.h>
@@ -89,11 +64,39 @@
 #include "CH58x_usbhost.h"
 #include "ISP585.h"
 
+ /**
+  * @brief  系统主频时钟（Hz）
+  */
+#ifndef  SYSCLK_FREQ
+#define  SYSCLK_FREQ    CLK_SOURCE_HSE_PLL_62_4MHz
+#endif
+#ifndef	 FREQ_SYS
+#define  FREQ_SYS       62400000
+#endif
+
+#ifndef  SAFEOPERATE
+#define  SAFEOPERATE   asm volatile("fence.i")
+#endif
+
+/**
+ * @brief  32K时钟（Hz）
+ */
+#ifdef CLK_OSC32K
+#if ( CLK_OSC32K == 1 )
+#define CAB_LSIFQ       32000
+#else
+#define CAB_LSIFQ       32768
+#endif
+#else
+#define CAB_LSIFQ       32000
+#endif
 
 #define DelayMs(x)      mDelaymS(x)
 #define DelayUs(x)      mDelayuS(x)
 
 #define ROM_CFG_VERISON    0x7F010
+
+extern uint32_t chip_info;
 
 #ifdef __cplusplus
 }
