@@ -1,13 +1,14 @@
-/*
- * Copyright (c) 2023, smartmx <smartmx@qq.com>
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2023-08-15     smartmx      the first version
- *
- */
+/********************************** (C) COPYRIGHT *******************************
+ * File Name          : Startup_CH583_RTThread.S
+ * Author             : WCH
+ * Version            : V1.0.1
+ * Date               : 2023/08/16
+ * Description        : CH583 RT-Thread NanoÆô¶¯ÎÄ¼þ
+ *********************************************************************************
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * Attention: This software (modified or not) and binary are used for
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ *******************************************************************************/
 
 	.section	.init,"ax",@progbits
 	.global	_start
@@ -16,8 +17,6 @@ _start:
 	j	handle_reset
 
     .section    .vector,"ax",@progbits
-    .global	_BB_IRQHandler_base
-    .global	_LLE_IRQHandler_base
     .align  1
 _vector_base:
     .option norvc;
@@ -26,7 +25,7 @@ _vector_base:
     .word   0
     .word   NMI_Handler                 			/* NMI Handler */
     .word   HardFault_Handler           			/* Hard Fault Handler */
-    .word   0xF5F9BDA9								/* boot option, can't modify */
+    .word   0xF3F9BDA9								/* boot option, can't modify */
     .word   Ecall_M_Mode_Handler        			/* 5 */
     .word   0
     .word   0
@@ -73,9 +72,7 @@ _real_user_vector_base:
     .word   GPIOA_IRQHandler           				/* GPIOA */
     .word   GPIOB_IRQHandler           				/* GPIOB */
     .word   SPI0_IRQHandler            				/* SPI0 */
-_BB_IRQHandler_base:
     .word   BB_IRQLibHandler      					/* BLEB BB_IRQHandler */
-_LLE_IRQHandler_base:
     .word   LLE_IRQLibHandler       				/* BLEL LLE_IRQHandler */
     .word   USB_IRQHandler             				/* USB */
     .word   USB2_IRQHandler			   				/* USB2 */
@@ -217,6 +214,21 @@ handle_reset:
 	la t0, _vector_base
     ori t0, t0, 3
 	csrw mtvec, t0
+
+    lui a4,0x40001
+    li  a5,87
+    sb  a5,64(a4)
+    li  a5,-88
+    sb  a5,64(a4)
+    fence.i
+    lw  a5,72(a4)
+    lui a3,0xfa000
+    addi  a3,a3,-8
+    and a5,a5,a3
+    lui a3,0x6000
+    addi a3,a3,5
+    or  a5,a5,a3
+    sw  a5,72(a4)
 
 	la t0, entry
 	csrw mepc, t0

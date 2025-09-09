@@ -43,7 +43,6 @@
 
 #ifdef DEBUG
 #include <stdio.h>
-#include "printf/printf.h"
 #endif
 
 /**
@@ -54,7 +53,7 @@
 #endif
 
 #ifndef  SAFEOPERATE
-#define  SAFEOPERATE   __nop();__nop()
+#define  SAFEOPERATE   asm volatile("fence.i")
 #endif
 
 /**
