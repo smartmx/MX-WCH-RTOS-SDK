@@ -1,4 +1,4 @@
-本工程为 kernel_liteos_m(Ver:OpenHarmony-3.2.3-Release)在Qingke V3C RISC-V内核的CH585/4上的移植。
+本工程为 kernel_liteos_m(Ver:OpenHarmony-5.1.0-Release)在Qingke V3C RISC-V内核的CH585/4上的移植。
 
 需要注意以下几点：
 
