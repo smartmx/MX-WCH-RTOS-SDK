@@ -126,7 +126,7 @@ void ADC_InterBATSampInit(void)
  */
 void TouchKey_ChSampInit(void)
 {
-    R8_ADC_CFG = RB_ADC_POWER_ON | RB_ADC_BUF_EN | (2 << 4);
+    R8_ADC_CFG = RB_ADC_POWER_ON | RB_ADC_BUF_EN | (1 << 4); // 使用-6dB模式，
     R8_TKEY_CFG |= RB_TKEY_PWR_ON;
 }
 

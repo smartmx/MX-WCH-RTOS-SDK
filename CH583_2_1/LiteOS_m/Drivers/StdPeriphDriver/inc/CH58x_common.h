@@ -42,7 +42,7 @@
 #define Debug_UART3        3
 
 #ifdef DEBUG
-#include "printf/printf.h"
+#include <stdio.h>
 #endif
 
 /**
@@ -53,7 +53,7 @@
 #endif
 
 #ifndef  SAFEOPERATE
-#define  SAFEOPERATE   __nop();__nop()
+#define  SAFEOPERATE   asm volatile("fence.i")
 #endif
 
 /**

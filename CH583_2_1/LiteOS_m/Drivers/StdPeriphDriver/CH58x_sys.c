@@ -182,6 +182,7 @@ void SYS_DisableAllIrq(uint32_t *pirqv)
     *pirqv = (PFIC->ISR[0] >> 8) | (PFIC->ISR[1] << 24);
     PFIC->IRER[0] = 0xffffffff;
     PFIC->IRER[1] = 0xffffffff;
+    asm volatile("fence.i");
 }
 
 /*********************************************************************
@@ -300,8 +301,6 @@ __HIGH_CODE
 __attribute__((weak))
 void HardFault_Handler(void)
 {
-    PRINT("HardFault\n");
-    DelayMs(10);
     FLASH_ROM_SW_RESET();
     sys_safe_access_enable();
     R16_INT32K_TUNE = 0xFFFF;
@@ -400,4 +399,26 @@ int _write(int fd, char *buf, int size)
 }
 
 #endif
+
+/*********************************************************************
+ * @fn      _sbrk
+ *
+ * @brief   Change the spatial position of data segment.
+ *
+ * @return  size: Data length
+ */
+__attribute__((used))
+void *_sbrk(ptrdiff_t incr)
+{
+    extern char _end[];
+    extern char _heap_end[];
+    static char *curbrk = _end;
+
+    if ((curbrk + incr < _end) || (curbrk + incr > _heap_end))
+    return NULL - 1;
+
+    curbrk += incr;
+    return curbrk - incr;
+}
+
 

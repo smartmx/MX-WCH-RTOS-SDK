@@ -92,12 +92,12 @@ extern "C" {
 /*=============================================================================
                                        Memory module configuration
 =============================================================================*/
-#define LOSCFG_SYS_HEAP_SIZE                                0x03000UL
+#define LOSCFG_SYS_HEAP_SIZE                                0x02800UL
 #define LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK                0
 #define LOSCFG_BASE_MEM_NODE_SIZE_CHECK                     1
 #define LOSCFG_MEM_MUL_POOL                                 0
 #define LOSCFG_KERNEL_MEM_SLAB                              0
-#define OS_SYS_MEM_SIZE                                     0x00000800
+#define OS_SYS_MEM_SIZE                                     0x00000400
 #define OS_SYS_MEM_NUM                                      20
 /*=============================================================================
                                        Exception module configuration

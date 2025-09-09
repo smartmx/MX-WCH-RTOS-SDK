@@ -68,7 +68,7 @@ uint32_t Lib_Write_Flash(uint32_t addr, uint32_t num, uint32_t *pBuf)
 #endif
 
 /*******************************************************************************
- * @fn      CH57X_BLEInit
+ * @fn      CH58X_BLEInit
  *
  * @brief   BLE 库初始化
  *
@@ -85,8 +85,10 @@ void CH58X_BLEInit(void)
         PRINT("head file error...\n");
         while(1);
     }
-    
-//    __SysTick_Config(SysTick_LOAD_RELOAD_Msk);
+
+    /*
+    __SysTick_Config(SysTick_LOAD_RELOAD_Msk);
+    */  /* 和RTOS中systick冲突 */
 
     tmos_memset(&cfg, 0, sizeof(bleConfig_t));
     cfg.MEMAddr = (uint32_t)MEM_BUF;
@@ -191,10 +193,16 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
     }
     if(events & HAL_REG_INIT_EVENT)
     {
+        uint8_t x32Kpw;
 #if(defined BLE_CALIBRATION_ENABLE) && (BLE_CALIBRATION_ENABLE == TRUE) // 校准任务，单次校准耗时小于10ms
         BLE_RegInit();                                                  // 校准RF
   #if(CLK_OSC32K)
         Lib_Calibration_LSI(); // 校准内部RC
+#else
+        x32Kpw = (R8_XT32K_TUNE & 0xfc) | 0x01;
+        sys_safe_access_enable();
+        R8_XT32K_TUNE = x32Kpw; // LSE驱动电流降低到额定电流
+        sys_safe_access_disable();
   #endif
         tmos_start_task(halTaskID, HAL_REG_INIT_EVENT, MS1_TO_SYSTEM_TIME(BLE_CALIBRATION_PERIOD));
         return events ^ HAL_REG_INIT_EVENT;
@@ -232,7 +240,7 @@ void HAL_Init()
     HAL_KeyInit();
 #endif
 #if(defined BLE_CALIBRATION_ENABLE) && (BLE_CALIBRATION_ENABLE == TRUE)
-    tmos_start_task(halTaskID, HAL_REG_INIT_EVENT, MS1_TO_SYSTEM_TIME(BLE_CALIBRATION_PERIOD)); // 添加校准任务，单次校准耗时小于10ms
+    tmos_start_task(halTaskID, HAL_REG_INIT_EVENT, 800); // 添加校准任务，500ms启动，单次校准耗时小于10ms
 #endif
     //  tmos_start_task( halTaskID, HAL_TEST_EVENT, 1600 );    // 添加一个测试任务
 }
