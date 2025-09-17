@@ -92,7 +92,7 @@ extern "C" {
 /*=============================================================================
                                        Memory module configuration
 =============================================================================*/
-#define LOSCFG_SYS_HEAP_SIZE                                0x02800UL
+#define LOSCFG_SYS_HEAP_SIZE                                0x02600UL
 #define LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK                0
 #define LOSCFG_BASE_MEM_NODE_SIZE_CHECK                     1
 #define LOSCFG_MEM_MUL_POOL                                 0

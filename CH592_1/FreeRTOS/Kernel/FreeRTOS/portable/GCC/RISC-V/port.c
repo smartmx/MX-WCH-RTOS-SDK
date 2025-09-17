@@ -160,7 +160,7 @@ void SysTick_Handler( void )
     {
         portYIELD();
     }
-    SysTick->SR &= (~(1<<0));
+    SysTick->SR = 0;
 }
 
 /*-----------------------------------------------------------*/

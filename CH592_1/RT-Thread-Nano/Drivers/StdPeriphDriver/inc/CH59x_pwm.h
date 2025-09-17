@@ -49,8 +49,6 @@ typedef enum
     PWMX_Cycle_127,     // 127 个PWMX周期
     PWMX_Cycle_64,      // 64 个PWMX周期
     PWMX_Cycle_63,      // 63 个PWMX周期
-    PWMX_Cycle_32,      // 32 个PWMX周期
-    PWMX_Cycle_31,      // 31 个PWMX周期
 } PWMX_CycleTypeDef;
 
 /**
@@ -61,11 +59,18 @@ typedef enum
 #define PWMX_CLKCfg(d)    (R8_PWM_CLOCK_DIV = d)
 
 /**
- * @brief   PWM4-PWM11基准时钟配置
+ * @brief   PWM4-PWM11周期配置
  *
  * @param   cyc - refer to PWMX_CycleTypeDef
  */
 void PWMX_CycleCfg(PWMX_CycleTypeDef cyc);
+
+/**
+ * @brief   PWM4-PWM9 16位周期配置
+ *
+ * @param   cyc - 16位周期
+ */
+void PWMX_16bit_CycleCfg(uint16_t cyc);
 
 /**
  * @brief   设置 PWM4 有效数据脉宽
@@ -132,6 +137,16 @@ void PWMX_CycleCfg(PWMX_CycleTypeDef cyc);
  * @param   s       - control pwmx function, ENABLE or DISABLE
  */
 void PWMX_ACTOUT(uint8_t ch, uint8_t da, PWMX_PolarTypeDef pr, FunctionalState s);
+
+/**
+ * @brief   PWM4-PWM9 通道16位输出波形配置
+ *
+ * @param   ch      - select channel of pwm, refer to channel of PWM define
+ * @param   da      - effective pulse width
+ * @param   pr      - select wave polar, refer to PWMX_PolarTypeDef
+ * @param   s       - control pwmx function, ENABLE or DISABLE
+ */
+void PWMX_16bit_ACTOUT(uint8_t ch, uint16_t da, PWMX_PolarTypeDef pr, FunctionalState s);
 
 /**
  * @brief   PWM 交替输出模式配置

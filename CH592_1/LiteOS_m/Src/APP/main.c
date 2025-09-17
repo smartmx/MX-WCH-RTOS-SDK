@@ -230,6 +230,8 @@ LITE_OS_SEC_TEXT_INIT int main(void)
 
     PRINT("start.\n");
 
+    PRINT("Program build on: %s, %s\n", __DATE__, __TIME__);
+
     ret = LOS_KernelInit();
     taskSample();
     if (ret == LOS_OK)

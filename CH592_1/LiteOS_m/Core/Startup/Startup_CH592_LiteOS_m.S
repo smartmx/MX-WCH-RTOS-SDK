@@ -1,13 +1,14 @@
-/*
- * Copyright (c) 2023, smartmx <smartmx@qq.com>
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2023-10-25     smartmx      the first version
- *
- */
+/********************************** (C) COPYRIGHT *******************************
+ * File Name          : Startup_CH592_LiteOS_m.S
+ * Author             : WCH
+ * Version            : V1.0.0
+ * Date               : 2023/10/25
+ * Description        : CH592 liteos_m启动文件
+ *********************************************************************************
+ * Copyright (c) 2023 Nanjing Qinheng Microelectronics Co., Ltd.
+ * Attention: This software (modified or not) and binary are used for
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ *******************************************************************************/
 
 	.section	.init,"ax",@progbits
 	.global	_start
@@ -151,7 +152,6 @@ WDOG_BAT_IRQHandler:
 1:
 	j 1b
 
-
 	.section	.handle_reset,"ax",@progbits
 	.weak	handle_reset
 	.align	1
@@ -206,7 +206,7 @@ handle_reset:
 	li t0, 0x01
 	csrw 0x804, t0
 
-	/* 使用机器模式，在rt-thread中打开中断 */
+	/* 使用机器模式，在liteos中打开中断 */
     li t0, 0x1800
     csrw mstatus, t0
 
@@ -215,19 +215,19 @@ handle_reset:
     ori t0, t0, 3
 	csrw mtvec, t0
 
-	la t0, entry
+	la t0, main
 	csrw mepc, t0
 
 	mret
 
-.extern rt_interrupt_enter
-.extern rt_interrupt_leave
+.extern ArchIntEnter
+.extern ArchIntExit
 
 .section	.highcode.unified_interrupt_entry,"ax",@progbits
 .align 2
 .func
 unified_interrupt_entry:
-	jal rt_interrupt_enter
+	jal ArchIntEnter
 	csrr a1, mcause
 	slli a1, a1, 2
 	la a0, _user_vector_base
@@ -260,7 +260,7 @@ unified_interrupt_entry:
 
 	csrr sp, mscratch					/* resume sp from mscratch. */
 1:
-	jal rt_interrupt_leave
+	jal ArchIntExit
 	mret
 
 #if ENABLE_INTERRUPT_NEST

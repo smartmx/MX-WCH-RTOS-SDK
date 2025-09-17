@@ -1,13 +1,14 @@
-/*
- * Copyright (c) 2023, smartmx <smartmx@qq.com>
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2023-10-25     smartmx      the first version
- *
- */
+/********************************** (C) COPYRIGHT *******************************
+ * File Name          : Startup_CH592_FreeRTOS.S
+ * Author             : WCH
+ * Version            : V1.0.1
+ * Date               : 2023/10/25
+ * Description        : CH592 FreeRTOS启动文件
+ *********************************************************************************
+ * Copyright (c) 2023 Nanjing Qinheng Microelectronics Co., Ltd.
+ * Attention: This software (modified or not) and binary are used for
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ *******************************************************************************/
 
 	.section	.init,"ax",@progbits
 	.global	_start
@@ -205,7 +206,7 @@ handle_reset:
 	li t0, 0x01
 	csrw 0x804, t0
 
-	/* 使用机器模式，在liteos中打开中断 */
+	/* 使用机器模式，在freertos中打开中断 */
     li t0, 0x1800
     csrw mstatus, t0
 
@@ -219,14 +220,12 @@ handle_reset:
 
 	mret
 
-.extern ArchIntEnter
-.extern ArchIntExit
+.extern xISRStackTop
 
 .section	.highcode.unified_interrupt_entry,"ax",@progbits
 .align 2
 .func
 unified_interrupt_entry:
-	jal ArchIntEnter
 	csrr a1, mcause
 	slli a1, a1, 2
 	la a0, _user_vector_base
@@ -240,7 +239,7 @@ unified_interrupt_entry:
 #endif
 
 	csrw mscratch, sp
-	la sp, _eusrstack					/* Switch to ISR stack before function call. */
+	lw sp, xISRStackTop					/* Switch to ISR stack before function call. */
 
 #if ENABLE_INTERRUPT_NEST
 	csrs 0x804, 0x02					/* enable interrupt nests. */
@@ -258,14 +257,12 @@ unified_interrupt_entry:
 #endif
 
 	csrr sp, mscratch					/* resume sp from mscratch. */
-1:
-	jal ArchIntExit
 	mret
 
 #if ENABLE_INTERRUPT_NEST
 interrupt_nesting:
 	jalr x1, 0(a0)						/* if it's in interrupt nesting, don't need to change sp. */
-	j 1b
+	mret
 #endif
 
 	.endfunc

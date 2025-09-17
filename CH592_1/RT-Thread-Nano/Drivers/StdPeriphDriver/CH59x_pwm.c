@@ -15,7 +15,7 @@
 /*********************************************************************
  * @fn      PWMX_CycleCfg
  *
- * @brief   PWM4-PWM11基准时钟配置
+ * @brief   PWM4-PWM11周期配置
  *
  * @param   cyc     - refer to PWMX_CycleTypeDef
  *
@@ -49,16 +49,64 @@ void PWMX_CycleCfg(PWMX_CycleTypeDef cyc)
             R8_PWM_CONFIG = (R8_PWM_CONFIG & 0xf0) | (2 << 2) | 0x01;
             break;
 
-        case PWMX_Cycle_32:
-            R8_PWM_CONFIG = (R8_PWM_CONFIG & 0xf0) | (3 << 2);
-            break;
-
-        case PWMX_Cycle_31:
-            R8_PWM_CONFIG = (R8_PWM_CONFIG & 0xf0) | (3 << 2) | 0x01;
-            break;
-
         default:
             break;
+    }
+}
+
+/*********************************************************************
+ * @fn      PWMX_16bit_CycleCfg
+ *
+ * @brief   PWM4-PWM9 16位周期配置
+ *
+ * @param   cyc     - 16位周期
+ *
+ * @return  none
+ */
+void PWMX_16bit_CycleCfg(uint16_t cyc)
+{
+    R8_PWM_CONFIG = (R8_PWM_CONFIG & 0xf0) | (3 << 2);
+    R32_PWM_REG_CYCLE = cyc;
+}
+
+/*********************************************************************
+ * @fn      PWMX_16bit_ACTOUT
+ *
+ * @brief   PWM4-PWM9 通道16位输出波形配置
+ *
+ * @param   ch      - select channel of pwm, refer to channel of PWM define
+ * @param   da      - effective pulse width
+ * @param   pr      - select wave polar, refer to PWMX_PolarTypeDef
+ * @param   s       - control pwmx function, ENABLE or DISABLE
+ *
+ * @return  none
+ */
+void PWMX_16bit_ACTOUT(uint8_t ch, uint16_t da, PWMX_PolarTypeDef pr, FunctionalState s)
+{
+    uint8_t i;
+
+    if(s == DISABLE)
+    {
+        R8_PWM_OUT_EN &= ~(ch);
+    }
+    else
+    {
+        (pr) ? (R8_PWM_POLAR |= (ch)) : (R8_PWM_POLAR &= ~(ch));
+        for(i = 0; i < 6; i++)
+        {
+            if((ch >> i) & 1)
+            {
+                if(i<4)
+                {
+                    *((volatile uint16_t *)((&R16_PWM4_DATA) + i)) = da;
+                }
+                else
+                {
+                    *((volatile uint16_t *)((&R16_PWM8_DATA) + (i-4))) = da;
+                }
+            }
+        }
+        R8_PWM_OUT_EN |= (ch);
     }
 }
 

@@ -5,9 +5,6 @@
 .extern os_enter_ble_protect
 .extern os_exit_ble_protect
 
-.extern rt_interrupt_enter
-.extern rt_interrupt_leave
-
 .extern g_LLE_IRQLibHandlerLocation
 
 .section	.highcode,"ax",@progbits
@@ -17,7 +14,6 @@ Ecall_M_Mode_Handler:
 Ecall_U_Mode_Handler:
 
 	jal os_exit_ble_protect
-	jal rt_interrupt_leave
 
 	addi a1, x0, 0x20
 	csrs 0x804, a1
@@ -96,7 +92,6 @@ LLE_IRQHandler:
 	sw x30, 28 * 4( sp )
 	sw x31, 29 * 4( sp )
 
-	jal rt_interrupt_enter
 	jal os_enter_ble_protect
 
 	la a1, g_LLE_IRQLibHandlerLocation
@@ -104,7 +99,6 @@ LLE_IRQHandler:
 	jalr x1, 0(a0)
 
 	jal os_exit_ble_protect
-	jal rt_interrupt_leave
 
 	lw x1, 1 * 4( sp )
 	lw x4, 2 * 4( sp )

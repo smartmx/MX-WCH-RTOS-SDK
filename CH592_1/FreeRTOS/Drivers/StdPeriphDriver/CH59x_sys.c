@@ -12,7 +12,6 @@
 
 #include "CH59x_common.h"
 
-volatile uint32_t IRQ_STA = 0;
 /*********************************************************************
  * @fn      SetSysClock
  *
@@ -25,6 +24,11 @@ volatile uint32_t IRQ_STA = 0;
 __HIGH_CODE
 void SetSysClock(SYS_CLKTypeDef sc)
 {
+    uint8_t chip_type=0;
+    if(((*(uint32_t*)ROM_CFG_VERISON)&0xFF) == DEF_CHIP_ID_CH592A)
+    {
+        chip_type = 1;
+    }
     sys_safe_access_enable();
     R8_PLL_CONFIG &= ~(1 << 5); //
     sys_safe_access_disable();
@@ -53,7 +57,14 @@ void SetSysClock(SYS_CLKTypeDef sc)
         __nop();
         sys_safe_access_disable();
         sys_safe_access_enable();
-        R8_FLASH_CFG = 0X52;
+        if(chip_type)
+        {
+            R8_FLASH_CFG = 0X53;
+        }
+        else
+        {
+            R8_FLASH_CFG = 0X52;
+        }
         sys_safe_access_disable();
     }
     else
@@ -149,6 +160,7 @@ void SYS_DisableAllIrq(uint32_t *pirqv)
     *pirqv = (PFIC->ISR[0] >> 8) | (PFIC->ISR[1] << 24);
     PFIC->IRER[0] = 0xffffffff;
     PFIC->IRER[1] = 0xffffffff;
+    asm volatile("fence.i");
 }
 
 /*********************************************************************
@@ -365,4 +377,26 @@ int _write(int fd, char *buf, int size)
 }
 
 #endif
+
+/*********************************************************************
+ * @fn      _sbrk
+ *
+ * @brief   Change the spatial position of data segment.
+ *
+ * @return  size: Data length
+ */
+__attribute__((used))
+void *_sbrk(ptrdiff_t incr)
+{
+    extern char _end[];
+    extern char _heap_end[];
+    static char *curbrk = _end;
+
+    if ((curbrk + incr < _end) || (curbrk + incr > _heap_end))
+    return NULL - 1;
+
+    curbrk += incr;
+    return curbrk - incr;
+}
+
 

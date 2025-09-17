@@ -216,8 +216,9 @@ int main(void)
 #ifdef DEBUG
     mx_debug_uart_init(115200);
 #endif
+    PRINT("Program build on: %s, %s\n", __DATE__, __TIME__);
+    PRINT("FreeRTOS %s start.\n", tskKERNEL_VERSION_NUMBER);
 
-    PRINT("start.\n");
     printMutex = xSemaphoreCreateMutex();
     if(printMutex == NULL)
     {

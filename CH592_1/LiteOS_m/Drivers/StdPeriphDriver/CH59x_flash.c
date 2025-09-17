@@ -122,7 +122,7 @@ uint8_t UserOptionByteClose_SWD(void)
 
     FLASH_ROM_READ(0x14, &s, 4);
 
-    if(s == 0xF5F9BDA9)
+    if(s == 0xF3F9BDA9)
     {
         FLASH_EEPROM_CMD(CMD_GET_ROM_INFO, 0x7EFFC, &s, 4);
 
@@ -164,4 +164,22 @@ void UserOptionByte_Active(void)
     R8_RST_WDOG_CTRL |= RB_SOFTWARE_RESET;
     sys_safe_access_disable();
     while(1);
+}
+
+/*********************************************************************
+ * @fn      GET_UNIQUE_ID
+ *
+ * @brief   get 64 bit unique ID
+ *
+ * @param   Buffer      - Pointer to the buffer where data should be stored, Must be aligned to 4 bytes.
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+void GET_UNIQUE_ID(uint8_t *Buffer)
+{
+    uint16_t temp;
+    FLASH_EEPROM_CMD( CMD_GET_ROM_INFO, ROM_CFG_MAC_ADDR, Buffer, 0 );
+    temp = (Buffer[0]|(Buffer[1]<<8)) + (Buffer[2]|(Buffer[3]<<8)) + (Buffer[4]|(Buffer[5]<<8));
+    Buffer[6] = temp&0xFF;
+    Buffer[7] = (temp>>8)&0xFF;
 }

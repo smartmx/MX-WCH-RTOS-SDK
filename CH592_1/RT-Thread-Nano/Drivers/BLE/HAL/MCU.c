@@ -13,7 +13,6 @@
 /******************************************************************************/
 /* 头文件包含 */
 #include "HAL.h"
-#include "rtthread.h"
 
 tmosTaskID halTaskID;
 uint32_t g_LLE_IRQLibHandlerLocation;
@@ -50,6 +49,26 @@ uint32_t Lib_Read_Flash(uint32_t addr, uint32_t num, uint32_t *pBuf)
 }
 
 /*******************************************************************************
+ * @fn      Lib_Write_Flash_592A
+ *
+ * @brief   Callback function used for BLE lib.
+ *
+ * @param   addr - Write start address
+ * @param   num - Number of units to write (unit: 4 bytes)
+ * @param   pBuf - Buffer with data to be written
+ *
+ * @return  None.
+ */
+void Lib_Write_Flash_592A(uint32_t addr, uint32_t num, uint32_t *pBuf)
+{
+    __attribute__((aligned(4))) uint32_t FLASH_BUF[(BLE_SNV_BLOCK*BLE_SNV_NUM) / 4];
+    EEPROM_READ(addr&0xFFFFF000, FLASH_BUF, BLE_SNV_BLOCK*BLE_SNV_NUM);
+    tmos_memcpy(&FLASH_BUF[addr&0xFFF], pBuf, num * 4);
+    EEPROM_ERASE(addr&0xFFFFF000, ((BLE_SNV_BLOCK*BLE_SNV_NUM+EEPROM_BLOCK_SIZE-1)/EEPROM_BLOCK_SIZE)*EEPROM_BLOCK_SIZE);
+    EEPROM_WRITE(addr&0xFFFFF000, FLASH_BUF, BLE_SNV_BLOCK*BLE_SNV_NUM);
+}
+
+/*******************************************************************************
  * @fn      Lib_Write_Flash
  *
  * @brief   Callback function used for BLE lib.
@@ -62,8 +81,15 @@ uint32_t Lib_Read_Flash(uint32_t addr, uint32_t num, uint32_t *pBuf)
  */
 uint32_t Lib_Write_Flash(uint32_t addr, uint32_t num, uint32_t *pBuf)
 {
-    EEPROM_ERASE(addr, num * 4);
-    EEPROM_WRITE(addr, pBuf, num * 4);
+    if(((*(uint32_t*)ROM_CFG_VERISON)&0xFF) == DEF_CHIP_ID_CH592A)
+    {
+        Lib_Write_Flash_592A(addr, num, pBuf);
+    }
+    else
+    {
+		EEPROM_ERASE(addr, num * 4);
+		EEPROM_WRITE(addr, pBuf, num * 4);
+    }
     return 0;
 }
 #endif
@@ -92,6 +118,7 @@ void CH59x_BLEInit(void)
     */  /* 和RTOS中systick冲突 */
 
     g_LLE_IRQLibHandlerLocation = (uint32_t)LLE_IRQLibHandler;
+    PFIC_SetPriority(BLEL_IRQn, 0xF0);
     tmos_memset(&cfg, 0, sizeof(bleConfig_t));
     cfg.MEMAddr = (uint32_t)MEM_BUF;
     cfg.MEMLen = (uint32_t)BLE_MEMHEAP_SIZE;
@@ -186,15 +213,21 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 #if(defined HAL_KEY) && (HAL_KEY == TRUE)
         HAL_KeyPoll(); /* Check for keys */
         tmos_start_task(halTaskID, HAL_KEY_EVENT, MS1_TO_SYSTEM_TIME(100));
-        return events ^ HAL_KEY_EVENT;
 #endif
+        return events ^ HAL_KEY_EVENT;
     }
     if(events & HAL_REG_INIT_EVENT)
     {
+        uint8_t x32Kpw;
 #if(defined BLE_CALIBRATION_ENABLE) && (BLE_CALIBRATION_ENABLE == TRUE) // 校准任务，单次校准耗时小于10ms
         BLE_RegInit();                                                  // 校准RF
   #if(CLK_OSC32K)
         Lib_Calibration_LSI(); // 校准内部RC
+#else
+        x32Kpw = (R8_XT32K_TUNE & 0xfc) | 0x01;
+        sys_safe_access_enable();
+        R8_XT32K_TUNE = x32Kpw; // LSE驱动电流降低到额定电流
+        sys_safe_access_disable();
   #endif
         tmos_start_task(halTaskID, HAL_REG_INIT_EVENT, MS1_TO_SYSTEM_TIME(BLE_CALIBRATION_PERIOD));
         return events ^ HAL_REG_INIT_EVENT;
@@ -232,7 +265,7 @@ void HAL_Init()
     HAL_KeyInit();
 #endif
 #if(defined BLE_CALIBRATION_ENABLE) && (BLE_CALIBRATION_ENABLE == TRUE)
-    tmos_start_task(halTaskID, HAL_REG_INIT_EVENT, MS1_TO_SYSTEM_TIME(BLE_CALIBRATION_PERIOD)); // 添加校准任务，单次校准耗时小于10ms
+    tmos_start_task(halTaskID, HAL_REG_INIT_EVENT, 800); // 添加校准任务，500ms启动，单次校准耗时小于10ms
 #endif
 //    tmos_start_task( halTaskID, HAL_TEST_EVENT, 1600 );    // 添加一个测试任务
 }
