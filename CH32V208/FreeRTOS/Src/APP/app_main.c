@@ -230,8 +230,9 @@ int main(void)
 
 #ifdef DEBUG
     USART_Printf_Init(115200);
-    PRINT("start.\n");
 #endif
+    PRINT("Program build on: %s, %s\n", __DATE__, __TIME__);
+    PRINT("FreeRTOS %s start.\n", tskKERNEL_VERSION_NUMBER);
 
     printMutex = xSemaphoreCreateMutex();
     if(printMutex == NULL)

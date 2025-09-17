@@ -234,8 +234,11 @@ int main(void)
 
 #ifdef DEBUG
     USART_Printf_Init(115200);
-    PRINT("start.\n");
 #endif
+
+    PRINT("start.\n");
+
+    PRINT("Program build on: %s, %s\n", __DATE__, __TIME__);
 
     ret = LOS_KernelInit();
     taskSample();
